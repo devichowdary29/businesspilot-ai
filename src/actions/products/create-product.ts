@@ -38,7 +38,11 @@ export async function createProduct(
     return {
       isSuccess: true,
       message: "Product created successfully",
-      data: product,
+      data: {
+        ...product,
+        price: Number(product.price),
+        cost: Number(product.cost),
+      } as any,
     };
   } catch (error) {
     console.error("Failed to create product:", error);

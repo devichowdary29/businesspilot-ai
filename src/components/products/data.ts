@@ -13,6 +13,7 @@ export const products: Product[] = [
   {
     id: "PROD-001",
     name: "Wireless Mouse",
+    sku: "SKU-001",
     category: "Electronics",
     description: "Ergonomic wireless mouse with 2.4GHz connectivity",
     price: 999,
@@ -27,6 +28,7 @@ export const products: Product[] = [
   {
     id: "PROD-002",
     name: "Mechanical Keyboard",
+    sku: "SKU-002",
     category: "Electronics",
     description: "RGB mechanical keyboard with Cherry MX switches",
     price: 2499,
@@ -41,6 +43,7 @@ export const products: Product[] = [
   {
     id: "PROD-003",
     name: "Laptop Stand",
+    sku: "SKU-003",
     category: "Accessories",
     description: "Adjustable aluminium laptop stand with ventilation",
     price: 1299,
@@ -59,6 +62,7 @@ export const products: Product[] = [
   {
     id: "PROD-004",
     name: "USB-C Hub",
+    sku: "SKU-004",
     category: "Accessories",
     description: "7-in-1 USB-C hub with HDMI, USB 3.0, and SD card reader",
     price: 1899,
@@ -73,6 +77,7 @@ export const products: Product[] = [
   {
     id: "PROD-005",
     name: "Monitor Light Bar",
+    sku: "SKU-005",
     category: "Accessories",
     description: "LED monitor light bar with touch controls and USB power",
     price: 3499,
@@ -87,6 +92,7 @@ export const products: Product[] = [
   {
     id: "PROD-006",
     name: "Webcam",
+    sku: "SKU-006",
     category: "Electronics",
     description: "1080p HD webcam with auto-focus and noise-cancelling mic",
     price: 2999,
@@ -105,6 +111,7 @@ export const products: Product[] = [
   {
     id: "PROD-007",
     name: "Noise Cancelling Headphones",
+    sku: "SKU-007",
     category: "Audio",
     description: "Over-ear ANC headphones with 30-hour battery life",
     price: 4999,
@@ -119,6 +126,7 @@ export const products: Product[] = [
   {
     id: "PROD-008",
     name: "Bluetooth Speaker",
+    sku: "SKU-008",
     category: "Audio",
     description: "Portable waterproof Bluetooth speaker with 12-hour playback",
     price: 1999,

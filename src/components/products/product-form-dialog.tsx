@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dialog"
 import { useRouter } from "next/navigation"
 import { createProduct } from "@/actions/products/create-product"
+import { updateProduct } from "@/actions/products/update-product"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -23,22 +24,44 @@ import {
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { Loader2 } from "lucide-react"
-import type { ProductFormData, ProductCategory } from "./types"
+import type { ProductFormData, ProductCategory, Product } from "./types"
 import { categories, initialProductFormData } from "./types"
 
 interface ProductFormDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
+  initialData?: Product
 }
 
 export function ProductFormDialog({
   open,
   onOpenChange,
+  initialData,
 }: ProductFormDialogProps) {
   const router = useRouter()
   const [isPending, startTransition] = React.useTransition()
   const [form, setForm] = React.useState<ProductFormData>(initialProductFormData)
   const [errors, setErrors] = React.useState<Partial<Record<keyof ProductFormData | "root", string>>>({})
+
+  React.useEffect(() => {
+    if (open) {
+      if (initialData) {
+        setForm({
+          name: initialData.name,
+          description: initialData.description,
+          category: initialData.category,
+          sku: initialData.sku,
+          price: initialData.price.toString(),
+          costPrice: initialData.costPrice.toString(),
+          stockQuantity: initialData.stockQuantity.toString(),
+          minimumStock: initialData.minimumStock.toString(),
+        })
+      } else {
+        setForm(initialProductFormData)
+      }
+      setErrors({})
+    }
+  }, [open, initialData])
 
   function validate(): boolean {
     const newErrors: Partial<Record<keyof ProductFormData, string>> = {}
@@ -64,24 +87,38 @@ export function ProductFormDialog({
 
     startTransition(async () => {
       setErrors({})
-      const sku = `PROD-${Math.random().toString(36).substring(2, 9).toUpperCase()}`
+      let response;
 
       let status: "ACTIVE" | "LOW_STOCK" | "OUT_OF_STOCK" | "DISCONTINUED" = "ACTIVE";
       const stock = Number(form.stockQuantity);
       const minStock = Number(form.minimumStock);
       if (stock === 0) status = "OUT_OF_STOCK";
       else if (stock <= minStock) status = "LOW_STOCK";
-
-      const response = await createProduct({
-        name: form.name,
-        description: form.description,
-        category: form.category,
-        sku,
-        price: Number(form.price),
-        cost: Number(form.costPrice),
-        status,
-        isActive: true,
-      })
+      
+      if (initialData) {
+        response = await updateProduct({
+          id: initialData.id,
+          name: form.name,
+          description: form.description,
+          category: form.category,
+          price: Number(form.price),
+          cost: Number(form.costPrice),
+          status,
+          isActive: true,
+        })
+      } else {
+        const sku = `PROD-${Math.random().toString(36).substring(2, 9).toUpperCase()}`
+        response = await createProduct({
+          name: form.name,
+          description: form.description,
+          category: form.category,
+          sku,
+          price: Number(form.price),
+          cost: Number(form.costPrice),
+          status,
+          isActive: true,
+        })
+      }
 
       if (response.isSuccess) {
         setForm(initialProductFormData)
@@ -106,9 +143,9 @@ export function ProductFormDialog({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Add New Product</DialogTitle>
+          <DialogTitle>{initialData ? "Edit Product" : "Add New Product"}</DialogTitle>
           <DialogDescription>
-            Fill in the details to add a new product to your catalog.
+            {initialData ? "Update the details of your product." : "Fill in the details to add a new product to your catalog."}
           </DialogDescription>
         </DialogHeader>
 
@@ -268,7 +305,7 @@ export function ProductFormDialog({
             </Button>
             <Button type="submit" disabled={isPending}>
               {isPending && <Loader2 className="mr-2 size-4 animate-spin" />}
-              {isPending ? "Creating..." : "Create Product"}
+              {isPending ? (initialData ? "Updating..." : "Creating...") : (initialData ? "Save Changes" : "Create Product")}
             </Button>
           </DialogFooter>
         </form>

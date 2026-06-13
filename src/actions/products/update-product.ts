@@ -54,7 +54,11 @@ export async function updateProduct(
     return {
       isSuccess: true,
       message: "Product updated successfully",
-      data: product,
+      data: {
+        ...product,
+        price: Number(product.price),
+        cost: Number(product.cost),
+      } as any,
     };
   } catch (error) {
     console.error("Failed to update product:", error);

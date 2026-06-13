@@ -30,7 +30,18 @@ export function ProductsPageClient({ initialProducts }: ProductsPageClientProps)
   })
   
   const [isAddDialogOpen, setIsAddDialogOpen] = React.useState(false)
+  const [productToEdit, setProductToEdit] = React.useState<Product | null>(null)
   const [productToDelete, setProductToDelete] = React.useState<Product | null>(null)
+
+  const handleEdit = (product: Product) => {
+    setProductToEdit(product)
+    setIsAddDialogOpen(true)
+  }
+
+  const handleDialogOpenChange = (open: boolean) => {
+    if (!open) setProductToEdit(null)
+    setIsAddDialogOpen(open)
+  }
 
   const filteredProducts = React.useMemo(() => {
     return products.filter((product) => {
@@ -86,7 +97,7 @@ export function ProductsPageClient({ initialProducts }: ProductsPageClientProps)
       ) : viewMode === "table" ? (
         <ProductsTable
           products={filteredProducts}
-          onEdit={(product) => void product}
+          onEdit={handleEdit}
           onDelete={(product) => setProductToDelete(product)}
         />
       ) : (
@@ -95,7 +106,7 @@ export function ProductsPageClient({ initialProducts }: ProductsPageClientProps)
             <ProductCard
               key={product.id}
               product={product}
-              onEdit={(product) => void product}
+              onEdit={handleEdit}
               onDelete={(product) => setProductToDelete(product)}
             />
           ))}
@@ -104,7 +115,8 @@ export function ProductsPageClient({ initialProducts }: ProductsPageClientProps)
 
       <ProductFormDialog
         open={isAddDialogOpen}
-        onOpenChange={setIsAddDialogOpen}
+        onOpenChange={handleDialogOpenChange}
+        initialData={productToEdit ?? undefined}
       />
 
       <ProductDeleteDialog

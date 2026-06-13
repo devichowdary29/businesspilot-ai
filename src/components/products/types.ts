@@ -20,6 +20,7 @@ export interface Product {
   id: string
   name: string
   category: ProductCategory
+  sku: string
   description: string
   price: number
   costPrice: number
@@ -43,6 +44,7 @@ export interface ProductFormData {
   name: string
   description: string
   category: ProductCategory
+  sku: string
   price: string
   costPrice: string
   stockQuantity: string
@@ -53,6 +55,7 @@ export const initialProductFormData: ProductFormData = {
   name: "",
   description: "",
   category: "Electronics",
+  sku: "",
   price: "",
   costPrice: "",
   stockQuantity: "",

@@ -14,6 +14,7 @@ export default async function ProductsPage() {
     mappedProducts = response.data.map((product) => ({
       id: product.id,
       name: product.name,
+      sku: product.sku,
       category: product.category as any,
       description: product.description || "",
       price: Number(product.price),
