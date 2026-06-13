@@ -9,6 +9,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { useRouter } from "next/navigation"
+import { createProduct } from "@/actions/products/create-product"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -20,22 +22,23 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
+import { Loader2 } from "lucide-react"
 import type { ProductFormData, ProductCategory } from "./types"
 import { categories, initialProductFormData } from "./types"
 
 interface ProductFormDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  onSubmit: (data: ProductFormData) => void
 }
 
 export function ProductFormDialog({
   open,
   onOpenChange,
-  onSubmit,
 }: ProductFormDialogProps) {
+  const router = useRouter()
+  const [isPending, startTransition] = React.useTransition()
   const [form, setForm] = React.useState<ProductFormData>(initialProductFormData)
-  const [errors, setErrors] = React.useState<Partial<Record<keyof ProductFormData, string>>>({})
+  const [errors, setErrors] = React.useState<Partial<Record<keyof ProductFormData | "root", string>>>({})
 
   function validate(): boolean {
     const newErrors: Partial<Record<keyof ProductFormData, string>> = {}
@@ -57,12 +60,38 @@ export function ProductFormDialog({
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (validate()) {
-      onSubmit(form)
-      setForm(initialProductFormData)
+    if (!validate()) return
+
+    startTransition(async () => {
       setErrors({})
-      onOpenChange(false)
-    }
+      const sku = `PROD-${Math.random().toString(36).substring(2, 9).toUpperCase()}`
+
+      let status: "ACTIVE" | "LOW_STOCK" | "OUT_OF_STOCK" | "DISCONTINUED" = "ACTIVE";
+      const stock = Number(form.stockQuantity);
+      const minStock = Number(form.minimumStock);
+      if (stock === 0) status = "OUT_OF_STOCK";
+      else if (stock <= minStock) status = "LOW_STOCK";
+
+      const response = await createProduct({
+        name: form.name,
+        description: form.description,
+        category: form.category,
+        sku,
+        price: Number(form.price),
+        cost: Number(form.costPrice),
+        status,
+        isActive: true,
+      })
+
+      if (response.isSuccess) {
+        setForm(initialProductFormData)
+        setErrors({})
+        onOpenChange(false)
+        router.refresh()
+      } else {
+        setErrors({ root: response.message })
+      }
+    })
   }
 
   function handleOpenChange(value: boolean) {
@@ -84,6 +113,11 @@ export function ProductFormDialog({
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="grid gap-4">
+          {errors.root && (
+            <div className="rounded-md bg-destructive/15 p-3 text-sm text-destructive">
+              {errors.root}
+            </div>
+          )}
           <div className="grid gap-2">
             <Label htmlFor="product-name">Product Name</Label>
             <Input
@@ -92,6 +126,7 @@ export function ProductFormDialog({
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
               aria-invalid={!!errors.name}
+              disabled={isPending}
             />
             {errors.name && (
               <p className="text-xs text-destructive">{errors.name}</p>
@@ -109,6 +144,7 @@ export function ProductFormDialog({
               }
               rows={2}
               aria-invalid={!!errors.description}
+              disabled={isPending}
             />
             {errors.description && (
               <p className="text-xs text-destructive">{errors.description}</p>
@@ -122,6 +158,7 @@ export function ProductFormDialog({
               onValueChange={(value) =>
                 setForm({ ...form, category: value as ProductCategory })
               }
+              disabled={isPending}
             >
               <SelectTrigger id="product-category" className="w-full">
                 <SelectValue />
@@ -148,6 +185,7 @@ export function ProductFormDialog({
                 value={form.price}
                 onChange={(e) => setForm({ ...form, price: e.target.value })}
                 aria-invalid={!!errors.price}
+                disabled={isPending}
               />
               {errors.price && (
                 <p className="text-xs text-destructive">{errors.price}</p>
@@ -166,6 +204,7 @@ export function ProductFormDialog({
                   setForm({ ...form, costPrice: e.target.value })
                 }
                 aria-invalid={!!errors.costPrice}
+                disabled={isPending}
               />
               {errors.costPrice && (
                 <p className="text-xs text-destructive">{errors.costPrice}</p>
@@ -187,6 +226,7 @@ export function ProductFormDialog({
                   setForm({ ...form, stockQuantity: e.target.value })
                 }
                 aria-invalid={!!errors.stockQuantity}
+                disabled={isPending}
               />
               {errors.stockQuantity && (
                 <p className="text-xs text-destructive">
@@ -207,6 +247,7 @@ export function ProductFormDialog({
                   setForm({ ...form, minimumStock: e.target.value })
                 }
                 aria-invalid={!!errors.minimumStock}
+                disabled={isPending}
               />
               {errors.minimumStock && (
                 <p className="text-xs text-destructive">
@@ -221,10 +262,14 @@ export function ProductFormDialog({
               type="button"
               variant="outline"
               onClick={() => handleOpenChange(false)}
+              disabled={isPending}
             >
               Cancel
             </Button>
-            <Button type="submit">Create Product</Button>
+            <Button type="submit" disabled={isPending}>
+              {isPending && <Loader2 className="mr-2 size-4 animate-spin" />}
+              {isPending ? "Creating..." : "Create Product"}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

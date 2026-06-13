@@ -11,19 +11,19 @@ export default async function ProductsPage() {
   let mappedProducts: Product[] = []
   
   if (response.isSuccess) {
-    mappedProducts = response.data.map((p) => ({
-      id: p.id,
-      name: p.name,
-      category: p.category as any,
-      description: p.description || "",
-      price: Number(p.price),
-      costPrice: Number(p.cost),
+    mappedProducts = response.data.map((product) => ({
+      id: product.id,
+      name: product.name,
+      category: product.category as any,
+      description: product.description || "",
+      price: Number(product.price),
+      costPrice: Number(product.cost),
       stockQuantity: 0,
       minimumStock: 10,
-      status: p.status === "ACTIVE" ? "Healthy" : p.status === "OUT_OF_STOCK" ? "Critical" : "Low Stock",
+      status: product.status === "ACTIVE" ? "Healthy" : product.status === "OUT_OF_STOCK" ? "Critical" : "Low Stock",
       image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=200&h=200&fit=crop",
       aiInsight: { type: "trending", label: "New Product", emoji: "✨" },
-      createdAt: new Date(p.createdAt).toISOString().split("T")[0],
+      createdAt: new Date(product.createdAt).toISOString().split("T")[0],
     }))
   }
 

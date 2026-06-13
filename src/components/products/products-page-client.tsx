@@ -17,6 +17,11 @@ interface ProductsPageClientProps {
 
 export function ProductsPageClient({ initialProducts }: ProductsPageClientProps) {
   const [products, setProducts] = React.useState<Product[]>(initialProducts)
+
+  React.useEffect(() => {
+    setProducts(initialProducts)
+  }, [initialProducts])
+
   const [viewMode, setViewMode] = React.useState<ViewMode>("table")
   const [filters, setFilters] = React.useState<ProductFilters>({
     search: "",
@@ -39,25 +44,7 @@ export function ProductsPageClient({ initialProducts }: ProductsPageClientProps)
     })
   }, [products, filters])
 
-  const handleAddProduct = (data: ProductFormData) => {
-    const newProduct: Product = {
-      id: `PROD-${Math.random().toString(36).substring(2, 9).toUpperCase()}`,
-      name: data.name,
-      category: data.category,
-      description: data.description,
-      price: Number(data.price),
-      costPrice: Number(data.costPrice),
-      stockQuantity: Number(data.stockQuantity),
-      minimumStock: Number(data.minimumStock),
-      status: deriveStatus(Number(data.stockQuantity), Number(data.minimumStock)),
-      image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=200&h=200&fit=crop",
-      aiInsight: { type: "trending", label: "New Product", emoji: "✨" },
-      createdAt: new Date().toISOString().split("T")[0],
-    }
-    
-    setProducts([newProduct, ...products])
-  }
-
+  // Create is now handled natively in ProductFormDialog via Server Action
   const handleDeleteProduct = () => {
     if (productToDelete) {
       setProducts(products.filter((p) => p.id !== productToDelete.id))
@@ -118,7 +105,6 @@ export function ProductsPageClient({ initialProducts }: ProductsPageClientProps)
       <ProductFormDialog
         open={isAddDialogOpen}
         onOpenChange={setIsAddDialogOpen}
-        onSubmit={handleAddProduct}
       />
 
       <ProductDeleteDialog
