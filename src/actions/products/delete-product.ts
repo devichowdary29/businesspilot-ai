@@ -1,0 +1,51 @@
+"use server";
+
+import prisma from "@/lib/prisma";
+import { auth } from "@clerk/nextjs/server";
+import { ProductActionState } from "./types";
+
+export async function deleteProduct(id: string): Promise<ProductActionState> {
+  try {
+    const { userId, orgId } = await auth();
+
+    if (!userId) {
+      return { isSuccess: false, message: "Not authenticated" };
+    }
+
+    if (!orgId) {
+      return { isSuccess: false, message: "No active organization" };
+    }
+
+    // Verify the product exists and belongs to the current organization
+    const existingProduct = await prisma.product.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    if (!existingProduct || existingProduct.organizationId !== orgId) {
+      return {
+        isSuccess: false,
+        message: "Product not found or unauthorized",
+      };
+    }
+
+    const product = await prisma.product.delete({
+      where: {
+        id,
+      },
+    });
+
+    return {
+      isSuccess: true,
+      message: "Product deleted successfully",
+      data: product,
+    };
+  } catch (error) {
+    console.error("Failed to delete product:", error);
+    return {
+      isSuccess: false,
+      message: "An error occurred while deleting the product",
+    };
+  }
+}
