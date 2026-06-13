@@ -39,7 +39,11 @@ export async function deleteProduct(id: string): Promise<ProductActionState> {
     return {
       isSuccess: true,
       message: "Product deleted successfully",
-      data: product,
+      data: {
+        ...product,
+        price: Number(product.price),
+        cost: Number(product.cost),
+      } as any,
     };
   } catch (error) {
     console.error("Failed to delete product:", error);

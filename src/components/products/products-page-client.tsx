@@ -55,13 +55,7 @@ export function ProductsPageClient({ initialProducts }: ProductsPageClientProps)
     })
   }, [products, filters])
 
-  // Create is now handled natively in ProductFormDialog via Server Action
-  const handleDeleteProduct = () => {
-    if (productToDelete) {
-      setProducts(products.filter((p) => p.id !== productToDelete.id))
-      setProductToDelete(null)
-    }
-  }
+  // Delete is now handled natively in ProductDeleteDialog via Server Action
 
   return (
     <div className="space-y-6">
@@ -120,10 +114,10 @@ export function ProductsPageClient({ initialProducts }: ProductsPageClientProps)
       />
 
       <ProductDeleteDialog
+        productId={productToDelete?.id ?? ""}
         productName={productToDelete?.name ?? ""}
         open={!!productToDelete}
         onOpenChange={(open) => !open && setProductToDelete(null)}
-        onConfirm={handleDeleteProduct}
       />
     </div>
   )
