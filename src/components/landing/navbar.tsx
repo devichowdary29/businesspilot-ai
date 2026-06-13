@@ -1,8 +1,12 @@
+"use client"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Box, Code } from "lucide-react"
+import { SignInButton, SignUpButton, UserButton, useAuth } from "@clerk/nextjs"
 
 export function Navbar() {
+  const { isLoaded, isSignedIn } = useAuth()
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 max-w-screen-2xl items-center justify-between px-4 md:px-8 mx-auto">
@@ -25,13 +29,24 @@ export function Navbar() {
           </Link>
         </nav>
 
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" asChild className="hidden sm:flex">
-            <Link href="/dashboard">Sign In</Link>
-          </Button>
-          <Button asChild>
-            <Link href="/dashboard">Get Started</Link>
-          </Button>
+        <div className="flex items-center gap-4">
+          {!isLoaded ? null : !isSignedIn ? (
+            <>
+              <SignInButton mode="modal">
+                <Button variant="ghost" className="hidden sm:inline-flex">Sign In</Button>
+              </SignInButton>
+              <SignUpButton mode="modal">
+                <Button>Get Started</Button>
+              </SignUpButton>
+            </>
+          ) : (
+            <>
+              <Link href="/dashboard">
+                <Button variant="outline" className="hidden sm:inline-flex mr-2">Dashboard</Button>
+              </Link>
+              <UserButton />
+            </>
+          )}
         </div>
       </div>
     </header>

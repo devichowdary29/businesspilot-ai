@@ -18,6 +18,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { OrganizationSwitcher, UserButton } from "@clerk/nextjs"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -108,41 +109,7 @@ function HeaderSearch() {
   )
 }
 
-function HeaderUserMenu() {
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="rounded-full">
-          <Avatar size="sm">
-            <AvatarImage
-              src="https://api.dicebear.com/9.x/notionists/svg?seed=Felix"
-              alt="User avatar"
-            />
-            <AvatarFallback>JP</AvatarFallback>
-          </Avatar>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56">
-        <DropdownMenuLabel className="font-normal">
-          <div className="flex flex-col gap-1">
-            <p className="text-sm font-medium leading-none">John Parker</p>
-            <p className="text-xs leading-none text-muted-foreground">
-              john@businesspilot.ai
-            </p>
-          </div>
-        </DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuGroup>
-          <DropdownMenuItem>Profile</DropdownMenuItem>
-          <DropdownMenuItem>Billing</DropdownMenuItem>
-          <DropdownMenuItem>Settings</DropdownMenuItem>
-        </DropdownMenuGroup>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem>Log out</DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  )
-}
+
 
 export function DashboardHeader() {
   const pathname = usePathname()
@@ -187,7 +154,20 @@ export function DashboardHeader() {
 
         <Separator orientation="vertical" className="mx-1 hidden h-5 md:block" />
 
-        <HeaderUserMenu />
+        <div className="flex items-center gap-3 ml-2">
+          <OrganizationSwitcher 
+            hidePersonal
+            afterCreateOrganizationUrl="/dashboard"
+            afterLeaveOrganizationUrl="/onboarding"
+            afterSelectOrganizationUrl="/dashboard"
+            appearance={{
+              elements: {
+                organizationSwitcherTrigger: "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+              }
+            }}
+          />
+          <UserButton />
+        </div>
       </div>
     </header>
   )
