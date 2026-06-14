@@ -8,3 +8,12 @@ export interface DashboardOverviewState {
     totalProducts: number;
   };
 }
+
+export interface DashboardRevenueState {
+  isSuccess: boolean;
+  message: string;
+  data?: {
+    month: string;
+    revenue: number;
+  }[];
+}
