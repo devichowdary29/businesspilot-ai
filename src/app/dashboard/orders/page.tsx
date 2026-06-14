@@ -1,94 +1,57 @@
-"use client"
+import { OrdersPageClient } from "@/components/orders/orders-page-client"
+import type { Order } from "@/components/orders/types"
 
-import * as React from "react"
-import { OrderStats } from "@/components/orders/orders-stats"
-import { RevenueSummary } from "@/components/orders/revenue-summary"
-import { OrdersToolbar } from "@/components/orders/orders-toolbar"
-import { OrdersTable } from "@/components/orders/orders-table"
-import { OrderCard } from "@/components/orders/order-card"
-import { OrderDetailsDialog } from "@/components/orders/order-details-dialog"
-import { orders as initialOrders, orderStats } from "@/components/orders/data"
-import type { Order, OrderFilters, ViewMode } from "@/components/orders/types"
+export const dynamic = "force-dynamic"
+export const runtime = "nodejs"
 
-export default function OrdersPage() {
-  const [orders] = React.useState<Order[]>(initialOrders)
-  const [viewMode, setViewMode] = React.useState<ViewMode>("table")
-  const [filters, setFilters] = React.useState<OrderFilters>({
-    search: "",
-    paymentStatus: "All",
-    orderStatus: "All",
-  })
+export default async function OrdersPage() {
+  const { getOrders } = await import("@/actions/orders/get-orders")
+  const response = await getOrders()
   
-  const [selectedOrder, setSelectedOrder] = React.useState<Order | null>(null)
-
-  const filteredOrders = React.useMemo(() => {
-    return orders.filter((order) => {
-      const searchLower = filters.search.toLowerCase()
-      const matchesSearch = 
-        order.orderNumber.toLowerCase().includes(searchLower) ||
-        order.customerName.toLowerCase().includes(searchLower) ||
-        order.products.some(p => p.name.toLowerCase().includes(searchLower))
+  let mappedOrders: Order[] = []
+  
+  if (response.isSuccess) {
+    mappedOrders = response.data.map((order) => {
+      // Format the date strings
+      const orderDateObj = new Date(order.createdAt)
+      const formattedOrderDate = `${orderDateObj.toLocaleString('default', { month: 'short' })} ${orderDateObj.getDate()}, ${orderDateObj.getFullYear()}`
       
-      const matchesPayment = filters.paymentStatus === "All" || order.paymentStatus === filters.paymentStatus
-      const matchesStatus = filters.orderStatus === "All" || order.orderStatus === filters.orderStatus
+      const updatedDateObj = new Date(order.updatedAt)
+      const formattedDeliveryDate = order.status === "DELIVERED" 
+        ? `${updatedDateObj.toLocaleString('default', { month: 'short' })} ${updatedDateObj.getDate()}, ${updatedDateObj.getFullYear()}`
+        : "Est. " + `${new Date(orderDateObj.setDate(orderDateObj.getDate() + 5)).toLocaleString('default', { month: 'short' })} ${orderDateObj.getDate()}, ${orderDateObj.getFullYear()}`
 
-      return matchesSearch && matchesPayment && matchesStatus
+      // Calculate simple AI insight
+      const profitValue = Number(order.profit)
+      const totalValue = Number(order.totalAmount)
+      const margin = totalValue > 0 ? profitValue / totalValue : 0
+      
+      let aiInsight: Order["aiInsight"] = "Growing Category"
+      if (margin > 0.4) aiInsight = "High Profit"
+      else if (margin < 0.1) aiInsight = "Low Margin"
+      else if (order.items.length > 3) aiInsight = "Best Seller"
+
+      return {
+        id: order.id,
+        orderNumber: `ORD-${order.id.slice(0, 8).toUpperCase()}`,
+        customerName: order.customer?.name || "Unknown Customer",
+        customerAvatar: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(order.customer?.name || "U")}`,
+        products: order.items.map(item => ({
+          name: item.product?.name || "Unknown Product",
+          quantity: item.quantity,
+          price: Number(item.price),
+        })),
+        orderDate: formattedOrderDate,
+        totalAmount: Number(order.totalAmount),
+        paymentMethod: "Credit Card", // Default stub since it's not in Prisma schema
+        paymentStatus: order.paymentStatus === "PAID" ? "Paid" : order.paymentStatus === "FAILED" ? "Failed" : order.paymentStatus === "REFUNDED" ? "Refunded" : "Pending",
+        orderStatus: order.status === "DELIVERED" ? "Delivered" : order.status === "SHIPPED" ? "Shipped" : order.status === "CANCELLED" ? "Cancelled" : "Processing",
+        deliveryDate: formattedDeliveryDate,
+        profit: Number(order.profit),
+        aiInsight,
+      }
     })
-  }, [orders, filters])
+  }
 
-  return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-2">
-        <h2 className="text-2xl font-bold tracking-tight">Orders & Revenue</h2>
-        <p className="text-muted-foreground">
-          Complete visibility over your revenue pipeline and order fulfillment.
-        </p>
-      </div>
-
-      <OrderStats stats={orderStats} />
-      
-      <div className="grid gap-6">
-        <RevenueSummary />
-      </div>
-
-      <OrdersToolbar
-        filters={filters}
-        onFiltersChange={setFilters}
-        viewMode={viewMode}
-        onViewModeChange={setViewMode}
-        totalCount={orders.length}
-        filteredCount={filteredOrders.length}
-      />
-
-      {filteredOrders.length === 0 ? (
-        <div className="flex min-h-[400px] flex-col items-center justify-center rounded-xl border border-dashed text-center">
-          <h3 className="text-lg font-semibold">No orders found</h3>
-          <p className="text-sm text-muted-foreground">
-            Try adjusting your search or filters.
-          </p>
-        </div>
-      ) : viewMode === "table" ? (
-        <OrdersTable
-          orders={filteredOrders}
-          onViewOrder={setSelectedOrder}
-        />
-      ) : (
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {filteredOrders.map((order) => (
-            <OrderCard
-              key={order.id}
-              order={order}
-              onViewOrder={setSelectedOrder}
-            />
-          ))}
-        </div>
-      )}
-
-      <OrderDetailsDialog
-        order={selectedOrder}
-        open={!!selectedOrder}
-        onOpenChange={(open) => !open && setSelectedOrder(null)}
-      />
-    </div>
-  )
+  return <OrdersPageClient initialOrders={mappedOrders} />
 }
