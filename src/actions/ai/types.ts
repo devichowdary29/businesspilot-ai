@@ -7,3 +7,16 @@ export type ActionState<T> =
 export type ConversationWithMessage = AIConversation & { messages: AIMessage[] };
 
 export type ConversationsActionState = ActionState<ConversationWithMessage[]>;
+
+export interface CreateConversationInput {
+  title: string;
+}
+
+export type ConversationActionState = ActionState<AIConversation>;
+
+export interface CreateMessageInput {
+  conversationId: string;
+  content: string;
+}
+
+export type MessageActionState = ActionState<AIMessage>;

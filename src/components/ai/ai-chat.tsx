@@ -7,6 +7,8 @@ import { SuggestedPrompts } from "./suggested-prompts"
 import { AiThinking } from "./ai-thinking"
 import { BusinessReportCard } from "./business-report-card"
 import { suggestedPrompts } from "./data"
+import { createMessage } from "@/actions/ai/create-message"
+import { useRouter } from "next/navigation"
 import type { ChatMessageData } from "./types"
 
 interface AiChatProps {
@@ -16,9 +18,12 @@ interface AiChatProps {
 }
 
 export function AiChat({ onExportReport, initialMessages = [], conversationId }: AiChatProps) {
+  const router = useRouter()
   const [messages, setMessages] = React.useState<ChatMessageData[]>(initialMessages)
   const [isThinking, setIsThinking] = React.useState(false)
+  const [error, setError] = React.useState<string | null>(null)
   const messagesEndRef = React.useRef<HTMLDivElement>(null)
+  const [isPending, startTransition] = React.useTransition()
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -33,58 +38,31 @@ export function AiChat({ onExportReport, initialMessages = [], conversationId }:
   }, [conversationId, initialMessages])
 
   const handleSend = (text: string) => {
-    const newUserMsg: ChatMessageData = {
-      id: Date.now().toString(),
-      role: "user",
-      content: text,
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    if (!conversationId) {
+      setError("Please select or create a conversation first.")
+      return
     }
-    setMessages(prev => [...prev, newUserMsg])
-    setIsThinking(true)
 
-    // Simulate AI response
-    setTimeout(() => {
-      setIsThinking(false)
-      
-      let aiContent: React.ReactNode = ""
-      
-      if (text.toLowerCase().includes("report")) {
-        aiContent = (
-          <div className="space-y-4">
-            <p>I've generated your weekly business report based on your latest data:</p>
-            <BusinessReportCard onExport={onExportReport} />
-          </div>
-        )
-      } else if (text.toLowerCase().includes("sales") || text.toLowerCase().includes("revenue")) {
-        aiContent = (
-          <div className="space-y-3">
-            <p>After analyzing your business data, I found three major reasons for the recent changes:</p>
-            <div className="space-y-2">
-              <p><strong>1. Inventory Issue</strong><br/>Wireless Mouse stock dropped below the safe threshold.<br/><span className="text-muted-foreground">Impact: Potential loss ₹45,000.</span></p>
-              <p><strong>2. Customer Retention</strong><br/>8 VIP customers have not purchased in 30 days.</p>
-              <p><strong>3. Product Mix</strong><br/>Accessory sales decreased by 12%.</p>
-            </div>
-            <p className="font-semibold pt-2">Recommended Actions:</p>
-            <ul className="list-inside space-y-1">
-              <li>✓ Restock Wireless Mouse immediately.</li>
-              <li>✓ Send a personalized offer to inactive VIP customers.</li>
-              <li>✓ Create a bundle campaign for accessories.</li>
-            </ul>
-          </div>
-        )
+    startTransition(async () => {
+      setError(null)
+      setIsThinking(true)
+
+      const response = await createMessage({
+        conversationId,
+        content: text
+      })
+
+      if (response.isSuccess) {
+        router.refresh()
       } else {
-        aiContent = "I'm analyzing that right now. Based on your current data, your overall business health remains strong at 92/100, but there are some inventory and customer retention opportunities we can explore."
+        setError(response.message)
       }
-
-      const newAiMsg: ChatMessageData = {
-        id: (Date.now() + 1).toString(),
-        role: "ai",
-        content: aiContent,
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      }
-      setMessages(prev => [...prev, newAiMsg])
-    }, 2500)
+      
+      setIsThinking(false)
+    })
   }
+      
+
 
   return (
     <div className="flex h-full flex-col relative">
@@ -127,7 +105,12 @@ export function AiChat({ onExportReport, initialMessages = [], conversationId }:
 
       <div className="p-4 md:px-8 bg-gradient-to-t from-background via-background to-transparent pt-10">
         <div className="mx-auto max-w-3xl">
-          <ChatInput onSend={handleSend} disabled={isThinking} />
+          {error && (
+            <div className="mb-3 rounded-lg bg-destructive/15 p-3 text-sm text-destructive text-center">
+              {error}
+            </div>
+          )}
+          <ChatInput onSend={handleSend} disabled={isThinking || isPending || !conversationId} isPending={isPending} />
           <p className="text-center text-xs text-muted-foreground mt-3">
             BusinessPilot AI can make mistakes. Consider verifying important information.
           </p>

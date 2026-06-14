@@ -7,6 +7,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { ConversationSidebar } from "@/components/ai/conversation-sidebar"
 import { AiChat } from "@/components/ai/ai-chat"
 import { ExportReportDialog } from "@/components/ai/export-report-dialog"
+import { CreateConversationDialog } from "@/components/ai/create-conversation-dialog"
 import type { ConversationHistoryItem, ChatMessageData } from "@/components/ai/types"
 
 interface AiPageClientProps {
@@ -20,6 +21,7 @@ export function AiPageClient({ initialConversations, messagesMap }: AiPageClient
   )
   const [exportOpen, setExportOpen] = React.useState(false)
   const [isMobileOpen, setIsMobileOpen] = React.useState(false)
+  const [isCreateOpen, setIsCreateOpen] = React.useState(false)
 
   const handleSelectConversation = (id: string) => {
     setActiveId(id)
@@ -27,8 +29,12 @@ export function AiPageClient({ initialConversations, messagesMap }: AiPageClient
   }
 
   const handleNewConversation = () => {
-    setActiveId(undefined)
+    setIsCreateOpen(true)
     setIsMobileOpen(false)
+  }
+
+  const handleConversationCreated = (newId: string) => {
+    setActiveId(newId)
   }
 
   const handleExportReport = () => {
@@ -81,6 +87,11 @@ export function AiPageClient({ initialConversations, messagesMap }: AiPageClient
 
       {/* Dialogs */}
       <ExportReportDialog open={exportOpen} onOpenChange={setExportOpen} />
+      <CreateConversationDialog 
+        open={isCreateOpen} 
+        onOpenChange={setIsCreateOpen} 
+        onSuccess={handleConversationCreated}
+      />
     </div>
   )
 }

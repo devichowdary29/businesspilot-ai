@@ -8,9 +8,10 @@ import { Textarea } from "@/components/ui/textarea"
 interface ChatInputProps {
   onSend: (message: string) => void
   disabled?: boolean
+  isPending?: boolean
 }
 
-export function ChatInput({ onSend, disabled }: ChatInputProps) {
+export function ChatInput({ onSend, disabled, isPending }: ChatInputProps) {
   const [input, setInput] = React.useState("")
   const textareaRef = React.useRef<HTMLTextAreaElement>(null)
 
@@ -60,9 +61,13 @@ export function ChatInput({ onSend, disabled }: ChatInputProps) {
           size="icon-sm" 
           className="rounded-full bg-primary/10 text-primary hover:bg-primary hover:text-primary-foreground transition-colors"
           onClick={handleSend}
-          disabled={!input.trim() || disabled}
+          disabled={!input.trim() || disabled || isPending}
         >
-          <Send className="size-4" />
+          {isPending ? (
+            <span className="size-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+          ) : (
+            <Send className="size-4" />
+          )}
         </Button>
       </div>
     </div>
