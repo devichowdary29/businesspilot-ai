@@ -1,16 +1,24 @@
 import { InventoryPageClient } from "@/components/inventory/inventory-page-client"
 import type { InventoryItem } from "@/components/inventory/types"
+import type { AvailableProductForInventory } from "@/actions/inventory/types"
 
 export const dynamic = "force-dynamic"
 export const runtime = "nodejs"
 
 export default async function InventoryPage() {
   const { getInventory } = await import("@/actions/inventory/get-inventory")
-  const response = await getInventory()
+  const { getProducts } = await import("@/actions/products/get-products")
+  
+  const [response, productsResponse] = await Promise.all([
+    getInventory(),
+    getProducts()
+  ])
   
   let mappedItems: InventoryItem[] = []
+  let trackedProductIds = new Set<string>()
   
   if (response.isSuccess) {
+    trackedProductIds = new Set(response.data.map(item => item.productId))
     mappedItems = response.data.map((item) => {
       // Calculate risk level based on stock ratio
       const ratio = item.quantity / item.minimumStock
@@ -65,5 +73,12 @@ export default async function InventoryPage() {
     })
   }
 
-  return <InventoryPageClient initialItems={mappedItems} />
+  let availableProducts: AvailableProductForInventory[] = []
+  if (productsResponse.isSuccess) {
+    availableProducts = productsResponse.data
+      .filter(p => !trackedProductIds.has(p.id))
+      .map(p => ({ id: p.id, name: p.name }))
+  }
+
+  return <InventoryPageClient initialItems={mappedItems} availableProducts={availableProducts} />
 }

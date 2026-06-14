@@ -8,3 +8,17 @@ export type InventoryWithProduct = Inventory & { product: Product };
 
 export type InventoryActionState = ActionState<InventoryWithProduct>;
 export type InventoriesActionState = ActionState<InventoryWithProduct[]>;
+
+export interface CreateInventoryInput {
+  productId: string;
+  quantity: number;
+  minimumStock: number;
+  supplier?: string;
+  leadTimeDays?: number;
+  dailySalesAvg?: number;
+}
+
+export interface AvailableProductForInventory {
+  id: string;
+  name: string;
+}

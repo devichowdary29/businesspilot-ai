@@ -8,14 +8,19 @@ import { InventoryToolbar } from "@/components/inventory/inventory-toolbar"
 import { InventoryTable } from "@/components/inventory/inventory-table"
 import { InventoryCard } from "@/components/inventory/inventory-card"
 import { RestockRecommendationDialog } from "@/components/inventory/restock-recommendation-dialog"
+import { InventoryFormDialog } from "@/components/inventory/inventory-form-dialog"
 import { inventoryStats } from "@/components/inventory/data"
 import type { InventoryItem, InventoryFilters, ViewMode } from "@/components/inventory/types"
+import type { AvailableProductForInventory } from "@/actions/inventory/types"
+import { Plus } from "lucide-react"
+import { Button } from "@/components/ui/button"
 
 interface InventoryPageClientProps {
   initialItems: InventoryItem[]
+  availableProducts: AvailableProductForInventory[]
 }
 
-export function InventoryPageClient({ initialItems }: InventoryPageClientProps) {
+export function InventoryPageClient({ initialItems, availableProducts }: InventoryPageClientProps) {
   const [items, setItems] = React.useState<InventoryItem[]>(initialItems)
   const [viewMode, setViewMode] = React.useState<ViewMode>("table")
   const [filters, setFilters] = React.useState<InventoryFilters>({
@@ -24,8 +29,10 @@ export function InventoryPageClient({ initialItems }: InventoryPageClientProps) 
     riskLevel: "All",
   })
   
+  
   const [selectedItem, setSelectedItem] = React.useState<InventoryItem | null>(null)
   const [dialogOpen, setDialogOpen] = React.useState(false)
+  const [isAddInventoryOpen, setIsAddInventoryOpen] = React.useState(false)
 
   React.useEffect(() => {
     setItems(initialItems)
@@ -56,7 +63,13 @@ export function InventoryPageClient({ initialItems }: InventoryPageClientProps) 
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-2">
-        <h2 className="text-2xl font-bold tracking-tight">Inventory Intelligence Center</h2>
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-bold tracking-tight">Inventory Intelligence Center</h2>
+          <Button onClick={() => setIsAddInventoryOpen(true)}>
+            <Plus className="mr-2 size-4" />
+            Add Inventory Tracking
+          </Button>
+        </div>
         <p className="text-muted-foreground">
           AI-powered supply chain management and automated forecasting.
         </p>
@@ -110,6 +123,12 @@ export function InventoryPageClient({ initialItems }: InventoryPageClientProps) 
         item={selectedItem}
         open={dialogOpen}
         onOpenChange={setDialogOpen}
+      />
+
+      <InventoryFormDialog
+        open={isAddInventoryOpen}
+        onOpenChange={setIsAddInventoryOpen}
+        products={availableProducts}
       />
     </div>
   )
