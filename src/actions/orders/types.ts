@@ -13,3 +13,25 @@ export type ActionState<T> =
 
 export type OrderActionState = ActionState<OrderWithRelations>;
 export type OrdersActionState = ActionState<OrderWithRelations[]>;
+
+export interface OrderItemInput {
+  productId: string;
+  quantity: number;
+}
+
+export interface CreateOrderInput {
+  customerId: string;
+  items: OrderItemInput[];
+}
+
+export interface AvailableCustomer {
+  id: string;
+  name: string;
+}
+
+export interface AvailableProduct {
+  id: string;
+  name: string;
+  price: number;
+  stock: number;
+}

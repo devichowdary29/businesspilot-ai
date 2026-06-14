@@ -7,14 +7,24 @@ import { OrdersToolbar } from "@/components/orders/orders-toolbar"
 import { OrdersTable } from "@/components/orders/orders-table"
 import { OrderCard } from "@/components/orders/order-card"
 import { OrderDetailsDialog } from "@/components/orders/order-details-dialog"
+import { OrderFormDialog } from "@/components/orders/order-form-dialog"
 import { orderStats } from "@/components/orders/data"
 import type { Order, OrderFilters, ViewMode } from "@/components/orders/types"
+import type { AvailableCustomer, AvailableProduct } from "@/actions/orders/types"
+import { Plus } from "lucide-react"
+import { Button } from "@/components/ui/button"
 
 interface OrdersPageClientProps {
   initialOrders: Order[]
+  availableCustomers: AvailableCustomer[]
+  availableProducts: AvailableProduct[]
 }
 
-export function OrdersPageClient({ initialOrders }: OrdersPageClientProps) {
+export function OrdersPageClient({ 
+  initialOrders,
+  availableCustomers,
+  availableProducts
+}: OrdersPageClientProps) {
   const [orders, setOrders] = React.useState<Order[]>(initialOrders)
   
   React.useEffect(() => {
@@ -29,6 +39,7 @@ export function OrdersPageClient({ initialOrders }: OrdersPageClientProps) {
   })
   
   const [selectedOrder, setSelectedOrder] = React.useState<Order | null>(null)
+  const [isAddOrderOpen, setIsAddOrderOpen] = React.useState(false)
 
   const filteredOrders = React.useMemo(() => {
     return orders.filter((order) => {
@@ -48,7 +59,13 @@ export function OrdersPageClient({ initialOrders }: OrdersPageClientProps) {
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-2">
-        <h2 className="text-2xl font-bold tracking-tight">Orders & Revenue</h2>
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-bold tracking-tight">Orders & Revenue</h2>
+          <Button onClick={() => setIsAddOrderOpen(true)}>
+            <Plus className="mr-2 size-4" />
+            Create Order
+          </Button>
+        </div>
         <p className="text-muted-foreground">
           Complete visibility over your revenue pipeline and order fulfillment.
         </p>
@@ -97,6 +114,13 @@ export function OrdersPageClient({ initialOrders }: OrdersPageClientProps) {
         order={selectedOrder}
         open={!!selectedOrder}
         onOpenChange={(open) => !open && setSelectedOrder(null)}
+      />
+
+      <OrderFormDialog
+        open={isAddOrderOpen}
+        onOpenChange={setIsAddOrderOpen}
+        customers={availableCustomers}
+        products={availableProducts}
       />
     </div>
   )

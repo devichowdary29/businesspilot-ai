@@ -1,12 +1,18 @@
 import { OrdersPageClient } from "@/components/orders/orders-page-client"
 import type { Order } from "@/components/orders/types"
+import { getCustomers } from "@/actions/customers/get-customers"
+import { getProducts } from "@/actions/products/get-products"
 
 export const dynamic = "force-dynamic"
 export const runtime = "nodejs"
 
 export default async function OrdersPage() {
   const { getOrders } = await import("@/actions/orders/get-orders")
-  const response = await getOrders()
+  const [response, customersResponse, productsResponse] = await Promise.all([
+    getOrders(),
+    getCustomers(),
+    getProducts()
+  ])
   
   let mappedOrders: Order[] = []
   
@@ -53,5 +59,23 @@ export default async function OrdersPage() {
     })
   }
 
-  return <OrdersPageClient initialOrders={mappedOrders} />
+  const availableCustomers = customersResponse.isSuccess ? customersResponse.data.map(c => ({
+    id: c.id,
+    name: c.name
+  })) : []
+
+  const availableProducts = productsResponse.isSuccess ? productsResponse.data.map(p => ({
+    id: p.id,
+    name: p.name,
+    price: Number(p.price),
+    stock: 100 // Stub value for UI dropdowns
+  })) : []
+
+  return (
+    <OrdersPageClient 
+      initialOrders={mappedOrders} 
+      availableCustomers={availableCustomers}
+      availableProducts={availableProducts}
+    />
+  )
 }
