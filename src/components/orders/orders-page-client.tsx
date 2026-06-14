@@ -8,6 +8,7 @@ import { OrdersTable } from "@/components/orders/orders-table"
 import { OrderCard } from "@/components/orders/order-card"
 import { OrderDetailsDialog } from "@/components/orders/order-details-dialog"
 import { OrderFormDialog } from "@/components/orders/order-form-dialog"
+import { OrderDeleteDialog } from "@/components/orders/order-delete-dialog"
 import { orderStats } from "@/components/orders/data"
 import type { Order, OrderFilters, ViewMode } from "@/components/orders/types"
 import type { AvailableCustomer, AvailableProduct } from "@/actions/orders/types"
@@ -40,11 +41,16 @@ export function OrdersPageClient({
   
   const [selectedOrder, setSelectedOrder] = React.useState<Order | null>(null)
   const [orderToEdit, setOrderToEdit] = React.useState<Order | null>(null)
+  const [orderToDelete, setOrderToDelete] = React.useState<Order | null>(null)
   const [isAddOrderOpen, setIsAddOrderOpen] = React.useState(false)
 
   const handleEdit = (order: Order) => {
     setOrderToEdit(order)
     setIsAddOrderOpen(true)
+  }
+
+  const handleDelete = (order: Order) => {
+    setOrderToDelete(order)
   }
 
   const handleOpenAddOrder = () => {
@@ -109,6 +115,7 @@ export function OrdersPageClient({
           orders={filteredOrders}
           onViewOrder={setSelectedOrder}
           onEdit={handleEdit}
+          onDelete={handleDelete}
         />
       ) : (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -118,6 +125,7 @@ export function OrdersPageClient({
               order={order}
               onViewOrder={setSelectedOrder}
               onEdit={handleEdit}
+              onDelete={handleDelete}
             />
           ))}
         </div>
@@ -139,6 +147,15 @@ export function OrdersPageClient({
         products={availableProducts}
         initialData={orderToEdit || undefined}
       />
+
+      {orderToDelete && (
+        <OrderDeleteDialog
+          orderId={orderToDelete.id}
+          orderNumber={orderToDelete.orderNumber}
+          open={!!orderToDelete}
+          onOpenChange={(open) => !open && setOrderToDelete(null)}
+        />
+      )}
     </div>
   )
 }

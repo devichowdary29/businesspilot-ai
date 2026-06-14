@@ -7,9 +7,10 @@ interface OrderCardProps {
   order: Order
   onViewOrder: (order: Order) => void
   onEdit?: (order: Order) => void
+  onDelete?: (order: Order) => void
 }
 
-export function OrderCard({ order, onViewOrder, onEdit }: OrderCardProps) {
+export function OrderCard({ order, onViewOrder, onEdit, onDelete }: OrderCardProps) {
   const totalProducts = order.products.reduce((sum, p) => sum + p.quantity, 0)
 
   return (

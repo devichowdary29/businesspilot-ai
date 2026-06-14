@@ -1,6 +1,6 @@
 "use client"
 
-import { MoreHorizontal, FileText, Download, Truck, Edit, RotateCcw, Mail, Eye } from "lucide-react"
+import { MoreHorizontal, FileText, Download, Truck, Edit, Trash2, RotateCcw, Mail, Eye } from "lucide-react"
 import {
   Table,
   TableBody,
@@ -25,9 +25,10 @@ interface OrdersTableProps {
   orders: Order[]
   onViewOrder: (order: Order) => void
   onEdit: (order: Order) => void
+  onDelete: (order: Order) => void
 }
 
-export function OrdersTable({ orders, onViewOrder, onEdit }: OrdersTableProps) {
+export function OrdersTable({ orders, onViewOrder, onEdit, onDelete }: OrdersTableProps) {
   return (
     <div className="rounded-xl border bg-card ring-1 ring-foreground/[0.06]">
       <Table>
@@ -121,6 +122,14 @@ export function OrdersTable({ orders, onViewOrder, onEdit }: OrdersTableProps) {
                     <DropdownMenuItem>
                       <RotateCcw className="mr-2 size-4" />
                       Refund Order
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem 
+                      onClick={() => onDelete(order)}
+                      className="text-destructive focus:bg-destructive/10 focus:text-destructive"
+                    >
+                      <Trash2 className="mr-2 size-4" />
+                      Delete Order
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
