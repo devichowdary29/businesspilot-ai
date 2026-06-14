@@ -7,6 +7,7 @@ import { CustomerTable } from "@/components/customers/customer-table"
 import { CustomerCard } from "@/components/customers/customer-card"
 import { CustomerProfileDialog } from "@/components/customers/customer-profile-dialog"
 import { CustomerFormDialog } from "@/components/customers/customer-form-dialog"
+import { CustomerDeleteDialog } from "@/components/customers/customer-delete-dialog"
 import { customerStats } from "@/components/customers/data"
 import { Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -31,11 +32,16 @@ export function CustomersPageClient({ initialCustomers }: CustomersPageClientPro
   
   const [selectedCustomer, setSelectedCustomer] = React.useState<Customer | null>(null)
   const [customerToEdit, setCustomerToEdit] = React.useState<Customer | null>(null)
+  const [customerToDelete, setCustomerToDelete] = React.useState<Customer | null>(null)
   const [isAddCustomerOpen, setIsAddCustomerOpen] = React.useState(false)
 
   const handleEdit = (customer: Customer) => {
     setCustomerToEdit(customer)
     setIsAddCustomerOpen(true)
+  }
+
+  const handleDelete = (customer: Customer) => {
+    setCustomerToDelete(customer)
   }
 
   const handleOpenAddCustomer = () => {
@@ -95,6 +101,7 @@ export function CustomersPageClient({ initialCustomers }: CustomersPageClientPro
           customers={filteredCustomers}
           onViewProfile={setSelectedCustomer}
           onEdit={handleEdit}
+          onDelete={handleDelete}
         />
       ) : (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -104,6 +111,7 @@ export function CustomersPageClient({ initialCustomers }: CustomersPageClientPro
               customer={customer}
               onViewProfile={setSelectedCustomer}
               onEdit={handleEdit}
+              onDelete={handleDelete}
             />
           ))}
         </div>
@@ -132,6 +140,13 @@ export function CustomersPageClient({ initialCustomers }: CustomersPageClientPro
               }
             : undefined
         }
+      />
+
+      <CustomerDeleteDialog
+        customerId={customerToDelete?.id ?? ""}
+        customerName={customerToDelete?.name ?? ""}
+        open={!!customerToDelete}
+        onOpenChange={(open) => !open && setCustomerToDelete(null)}
       />
     </div>
   )

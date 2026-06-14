@@ -1,6 +1,6 @@
 "use client"
 
-import { MoreHorizontal, Mail, Phone, CalendarCheck, Edit } from "lucide-react"
+import { MoreHorizontal, Mail, Phone, CalendarCheck, Edit, Trash2 } from "lucide-react"
 import {
   Table,
   TableBody,
@@ -26,9 +26,10 @@ interface CustomerTableProps {
   customers: Customer[]
   onViewProfile: (customer: Customer) => void
   onEdit: (customer: Customer) => void
+  onDelete: (customer: Customer) => void
 }
 
-export function CustomerTable({ customers, onViewProfile, onEdit }: CustomerTableProps) {
+export function CustomerTable({ customers, onViewProfile, onEdit, onDelete }: CustomerTableProps) {
   return (
     <div className="rounded-xl border bg-card ring-1 ring-foreground/[0.06]">
       <Table>
@@ -114,6 +115,14 @@ export function CustomerTable({ customers, onViewProfile, onEdit }: CustomerTabl
                     <DropdownMenuItem>
                       <Phone className="mr-2 size-4" />
                       Contact via Phone
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      className="text-red-600 dark:text-red-400 focus:text-red-600 dark:focus:text-red-400"
+                      onClick={() => onDelete(customer)}
+                    >
+                      <Trash2 className="mr-2 size-4" />
+                      Delete Customer
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>

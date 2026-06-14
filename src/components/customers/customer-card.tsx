@@ -8,9 +8,10 @@ interface CustomerCardProps {
   customer: Customer
   onViewProfile: (customer: Customer) => void
   onEdit?: (customer: Customer) => void
+  onDelete?: (customer: Customer) => void
 }
 
-export function CustomerCard({ customer, onViewProfile, onEdit }: CustomerCardProps) {
+export function CustomerCard({ customer, onViewProfile, onEdit, onDelete }: CustomerCardProps) {
   // Simple health score representation (inverse of risk score)
   const healthScore = 100 - customer.riskScore
   
