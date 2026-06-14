@@ -1,4 +1,4 @@
-import { type LucideIcon } from "lucide-react"
+
 
 export type CustomerSegment = "VIP" | "Loyal" | "New" | "At Risk"
 
@@ -37,7 +37,7 @@ export interface CustomerStatsData {
   value: string
   change: string
   changeType: "positive" | "negative" | "neutral"
-  icon: LucideIcon
+  iconName: "Users" | "IndianRupee" | "Star" | "AlertTriangle"
 }
 
 export interface CustomerFormData {

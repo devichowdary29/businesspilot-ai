@@ -5,7 +5,9 @@ import { auth } from "@clerk/nextjs/server";
 import { ActionState } from "./types";
 import { Order } from "@prisma/client";
 
-export async function deleteOrder(id: string): Promise<ActionState<Order>> {
+export type SerializableOrder = Omit<Order, "totalAmount" | "profit"> & { totalAmount: number; profit: number };
+
+export async function deleteOrder(id: string): Promise<ActionState<SerializableOrder>> {
   try {
     const { userId, orgId } = await auth();
 
@@ -53,7 +55,11 @@ export async function deleteOrder(id: string): Promise<ActionState<Order>> {
     return {
       isSuccess: true,
       message: "Order deleted successfully",
-      data: order,
+      data: {
+        ...order,
+        totalAmount: Number(order.totalAmount),
+        profit: Number(order.profit),
+      },
     };
   } catch (error: any) {
     console.error("Failed to delete order:", error);

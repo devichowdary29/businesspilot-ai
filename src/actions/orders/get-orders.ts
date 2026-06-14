@@ -36,7 +36,24 @@ export async function getOrders(): Promise<OrdersActionState> {
     return {
       isSuccess: true,
       message: "Orders fetched successfully",
-      data: orders,
+      data: orders.map(order => ({
+        ...order,
+        totalAmount: Number(order.totalAmount),
+        profit: Number(order.profit),
+        customer: {
+          ...order.customer,
+          totalSpent: Number(order.customer.totalSpent),
+        },
+        items: order.items.map(item => ({
+          ...item,
+          price: Number(item.price),
+          product: {
+            ...item.product,
+            price: Number(item.product.price),
+            cost: Number(item.product.cost),
+          }
+        }))
+      })),
     };
   } catch (error) {
     console.error("Failed to fetch orders:", error);

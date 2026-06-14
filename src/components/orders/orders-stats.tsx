@@ -1,6 +1,13 @@
 import { Card, CardContent } from "@/components/ui/card"
-import { ArrowUpRight, ArrowDownRight, AlertTriangle } from "lucide-react"
+import { ArrowUpRight, ArrowDownRight, AlertTriangle, IndianRupee, ShoppingCart, Percent, TrendingUp } from "lucide-react"
 import type { OrderStatsData } from "./types"
+
+const iconMap = {
+  IndianRupee: IndianRupee,
+  ShoppingCart: ShoppingCart,
+  Percent: Percent,
+  TrendingUp: TrendingUp,
+}
 
 interface OrderStatsProps {
   stats: OrderStatsData[]
@@ -20,7 +27,10 @@ export function OrderStats({ stats }: OrderStatsProps) {
                 {stat.title}
               </p>
               <div className="flex size-9 items-center justify-center rounded-lg bg-muted/60 text-muted-foreground transition-colors group-hover/stat:bg-primary/10 group-hover/stat:text-primary">
-                <stat.icon className="size-4" />
+                {(() => {
+                  const Icon = iconMap[stat.iconName] || IndianRupee
+                  return <Icon className="size-4" />
+                })()}
               </div>
             </div>
             <div className="mt-2">

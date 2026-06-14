@@ -3,25 +3,25 @@
 import * as React from "react"
 import { InventoryStats } from "@/components/inventory/inventory-stats"
 import { InventoryForecastPanel } from "@/components/inventory/inventory-forecast-panel"
-import { SupplierInfoCard } from "@/components/inventory/supplier-info-card"
 import { InventoryToolbar } from "@/components/inventory/inventory-toolbar"
 import { InventoryTable } from "@/components/inventory/inventory-table"
 import { InventoryCard } from "@/components/inventory/inventory-card"
 import { RestockRecommendationDialog } from "@/components/inventory/restock-recommendation-dialog"
 import { InventoryFormDialog } from "@/components/inventory/inventory-form-dialog"
 import { InventoryDeleteDialog } from "@/components/inventory/inventory-delete-dialog"
-import { inventoryStats } from "@/components/inventory/data"
-import type { InventoryItem, InventoryFilters, ViewMode } from "@/components/inventory/types"
-import type { AvailableProductForInventory } from "@/actions/inventory/types"
+import type { InventoryItem, InventoryFilters, ViewMode, InventoryStatsData } from "@/components/inventory/types"
+import type { AvailableProductForInventory, InventoryIntelligenceState } from "@/actions/inventory/types"
 import { Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 interface InventoryPageClientProps {
   initialItems: InventoryItem[]
   availableProducts: AvailableProductForInventory[]
+  analytics: InventoryStatsData[]
+  intelligence?: InventoryIntelligenceState["data"]
 }
 
-export function InventoryPageClient({ initialItems, availableProducts }: InventoryPageClientProps) {
+export function InventoryPageClient({ initialItems, availableProducts, analytics, intelligence }: InventoryPageClientProps) {
   const [items, setItems] = React.useState<InventoryItem[]>(initialItems)
   const [viewMode, setViewMode] = React.useState<ViewMode>("table")
   const [filters, setFilters] = React.useState<InventoryFilters>({
@@ -88,15 +88,10 @@ export function InventoryPageClient({ initialItems, availableProducts }: Invento
         </p>
       </div>
 
-      <InventoryStats stats={inventoryStats} />
+      <InventoryStats stats={analytics} />
       
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2">
-          <InventoryForecastPanel />
-        </div>
-        <div>
-          <SupplierInfoCard />
-        </div>
+      <div className="grid gap-6">
+        <InventoryForecastPanel intelligence={intelligence} />
       </div>
 
       <InventoryToolbar

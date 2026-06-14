@@ -1,4 +1,4 @@
-import { IndianRupee, PackageCheck, AlertTriangle, AlertOctagon } from "lucide-react"
+
 import type { InventoryItem, InventoryStatsData } from "./types"
 
 export const inventoryStats: InventoryStatsData[] = [
@@ -7,28 +7,28 @@ export const inventoryStats: InventoryStatsData[] = [
     value: "₹48.6L",
     change: "+12% this quarter",
     changeType: "positive",
-    icon: IndianRupee,
+    iconName: "TrendingUp", // Adjusted to match mapped icon type
   },
   {
     title: "Healthy Stock",
     value: "76 products",
     change: "Stable inventory",
     changeType: "positive",
-    icon: PackageCheck,
+    iconName: "Package", // Adjusted to match mapped icon type
   },
   {
     title: "Low Stock Alerts",
     value: "8 products",
     change: "Need attention",
     changeType: "neutral",
-    icon: AlertTriangle,
+    iconName: "AlertTriangle",
   },
   {
     title: "Critical Items",
     value: "3 products",
     change: "Immediate action required",
     changeType: "negative",
-    icon: AlertOctagon,
+    iconName: "ShieldAlert", // Adjusted to match mapped icon type
   },
 ]
 

@@ -1,5 +1,9 @@
 import { OrdersPageClient } from "@/components/orders/orders-page-client"
-import type { Order } from "@/components/orders/types"
+import { IndianRupee, ShoppingCart, Percent, TrendingUp } from "lucide-react"
+import type { Order, OrderStatsData } from "@/components/orders/types"
+import { getOrderAnalytics } from "@/actions/orders/get-order-analytics"
+import { getOrderForecast } from "@/actions/orders/get-order-forecast"
+import { getOrdersRevenueChart } from "@/actions/orders/get-orders-revenue-chart"
 import { getCustomers } from "@/actions/customers/get-customers"
 import { getProducts } from "@/actions/products/get-products"
 
@@ -8,10 +12,13 @@ export const runtime = "nodejs"
 
 export default async function OrdersPage() {
   const { getOrders } = await import("@/actions/orders/get-orders")
-  const [response, customersResponse, productsResponse] = await Promise.all([
+  const [response, customersResponse, productsResponse, analyticsResponse, forecastResponse, chartResponse] = await Promise.all([
     getOrders(),
     getCustomers(),
-    getProducts()
+    getProducts(),
+    getOrderAnalytics(),
+    getOrderForecast(),
+    getOrdersRevenueChart()
   ])
   
   let mappedOrders: Order[] = []
@@ -73,11 +80,45 @@ export default async function OrdersPage() {
     stock: 100 // Stub value for UI dropdowns
   })) : []
 
+  const liveStats: OrderStatsData[] = [
+    {
+      title: "Total Revenue",
+      value: `₹${(analyticsResponse.data?.totalRevenue || 0).toLocaleString("en-IN")}`,
+      change: "Live Database Metric",
+      changeType: "neutral",
+      iconName: "IndianRupee",
+    },
+    {
+      title: "Total Orders",
+      value: (analyticsResponse.data?.totalOrders || 0).toString(),
+      change: "Live Database Metric",
+      changeType: "neutral",
+      iconName: "ShoppingCart",
+    },
+    {
+      title: "Profit Margin",
+      value: `${analyticsResponse.data?.profitMargin || 0}%`,
+      change: "Live Database Metric",
+      changeType: "neutral",
+      iconName: "Percent",
+    },
+    {
+      title: "Average Order Value",
+      value: `₹${(analyticsResponse.data?.averageOrderValue || 0).toLocaleString("en-IN")}`,
+      change: "Live Database Metric",
+      changeType: "neutral",
+      iconName: "TrendingUp",
+    },
+  ]
+
   return (
     <OrdersPageClient 
       initialOrders={mappedOrders} 
       availableCustomers={availableCustomers}
       availableProducts={availableProducts}
+      analytics={liveStats}
+      forecast={forecastResponse.data}
+      chartData={chartResponse.data}
     />
   )
 }

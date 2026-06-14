@@ -1,12 +1,17 @@
 import { CustomersPageClient } from "@/components/customers/customers-page-client"
-import type { Customer } from "@/components/customers/types"
+import { Users, IndianRupee, Star, AlertTriangle } from "lucide-react"
+import type { Customer, CustomerStatsData } from "@/components/customers/types"
+import { getCustomerAnalytics } from "@/actions/customers/get-customer-analytics"
 
 export const dynamic = "force-dynamic"
 export const runtime = "nodejs"
 
 export default async function CustomersPage() {
   const { getCustomers } = await import("@/actions/customers/get-customers")
-  const response = await getCustomers()
+  const [response, analyticsResponse] = await Promise.all([
+    getCustomers(),
+    getCustomerAnalytics()
+  ])
   
   let mappedCustomers: Customer[] = []
   
@@ -28,5 +33,36 @@ export default async function CustomersPage() {
     }))
   }
 
-  return <CustomersPageClient initialCustomers={mappedCustomers} />
+  const liveStats: CustomerStatsData[] = [
+    {
+      title: "Total Customers",
+      value: (analyticsResponse.data?.totalCustomers || 0).toString(),
+      change: "Live Database Metric",
+      changeType: "neutral",
+      iconName: "Users",
+    },
+    {
+      title: "Lifetime Value",
+      value: `₹${(analyticsResponse.data?.lifetimeValue || 0).toLocaleString("en-IN")}`,
+      change: "Live Database Metric",
+      changeType: "neutral",
+      iconName: "IndianRupee",
+    },
+    {
+      title: "VIP Customers",
+      value: (analyticsResponse.data?.vipCustomers || 0).toString(),
+      change: "Live Database Metric",
+      changeType: "neutral",
+      iconName: "Star",
+    },
+    {
+      title: "Churn Risk",
+      value: (analyticsResponse.data?.churnRisk || 0).toString(),
+      change: "Live Database Metric",
+      changeType: "neutral",
+      iconName: "AlertTriangle",
+    },
+  ]
+
+  return <CustomersPageClient initialCustomers={mappedCustomers} analytics={liveStats} />
 }

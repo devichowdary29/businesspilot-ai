@@ -9,9 +9,8 @@ import { OrderCard } from "@/components/orders/order-card"
 import { OrderDetailsDialog } from "@/components/orders/order-details-dialog"
 import { OrderFormDialog } from "@/components/orders/order-form-dialog"
 import { OrderDeleteDialog } from "@/components/orders/order-delete-dialog"
-import { orderStats } from "@/components/orders/data"
-import type { Order, OrderFilters, ViewMode } from "@/components/orders/types"
-import type { AvailableCustomer, AvailableProduct } from "@/actions/orders/types"
+import type { Order, OrderFilters, ViewMode, OrderStatsData } from "@/components/orders/types"
+import type { AvailableCustomer, AvailableProduct, OrderForecastState, ChartDataPoint } from "@/actions/orders/types"
 import { Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
@@ -19,12 +18,18 @@ interface OrdersPageClientProps {
   initialOrders: Order[]
   availableCustomers: AvailableCustomer[]
   availableProducts: AvailableProduct[]
+  analytics: OrderStatsData[]
+  forecast?: OrderForecastState["data"]
+  chartData?: ChartDataPoint[]
 }
 
 export function OrdersPageClient({ 
   initialOrders,
   availableCustomers,
-  availableProducts
+  availableProducts,
+  analytics,
+  forecast,
+  chartData
 }: OrdersPageClientProps) {
   const [orders, setOrders] = React.useState<Order[]>(initialOrders)
   
@@ -88,10 +93,10 @@ export function OrdersPageClient({
         </p>
       </div>
 
-      <OrderStats stats={orderStats} />
+      <OrderStats stats={analytics} />
       
       <div className="grid gap-6">
-        <RevenueSummary />
+        <RevenueSummary forecast={forecast} chartData={chartData} />
       </div>
 
       <OrdersToolbar

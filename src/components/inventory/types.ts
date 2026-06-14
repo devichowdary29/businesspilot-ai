@@ -1,4 +1,4 @@
-import { type LucideIcon } from "lucide-react"
+
 
 export type InventoryCategory = "Electronics" | "Accessories" | "Audio" | "Storage" | "Wearables"
 export type RiskLevel = "Healthy" | "Watch" | "Low" | "Critical"
@@ -38,5 +38,5 @@ export interface InventoryStatsData {
   value: string
   change: string
   changeType: "positive" | "negative" | "neutral"
-  icon: LucideIcon
+  iconName: "TrendingUp" | "Package" | "AlertTriangle" | "ShieldAlert"
 }

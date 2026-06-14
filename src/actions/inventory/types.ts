@@ -4,10 +4,12 @@ export type ActionState<T> =
   | { isSuccess: true; message: string; data: T }
   | { isSuccess: false; message: string; data?: never };
 
-export type InventoryWithProduct = Inventory & { product: Product };
+export type SerializableInventoryWithProduct = Inventory & { 
+  product: Omit<Product, "price" | "cost"> & { price: number; cost: number };
+};
 
-export type InventoryActionState = ActionState<InventoryWithProduct>;
-export type InventoriesActionState = ActionState<InventoryWithProduct[]>;
+export type InventoryActionState = ActionState<SerializableInventoryWithProduct>;
+export type InventoriesActionState = ActionState<SerializableInventoryWithProduct[]>;
 
 export interface CreateInventoryInput {
   productId: string;
@@ -30,4 +32,26 @@ export interface UpdateInventoryInput {
   supplier?: string;
   leadTimeDays?: number;
   dailySalesAvg?: number;
+}
+
+export interface InventoryAnalyticsState {
+  isSuccess: boolean;
+  message: string;
+  data?: {
+    inventoryValue: number;
+    healthyStock: number;
+    lowStock: number;
+    criticalItems: number;
+  };
+}
+
+export interface InventoryIntelligenceState {
+  isSuccess: boolean;
+  message: string;
+  data?: {
+    healthScore: number;
+    insight1: string;
+    insight2: string;
+    recommendation: string;
+  };
 }

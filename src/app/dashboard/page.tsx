@@ -3,14 +3,10 @@ import { AiAdvisorCard } from "@/components/dashboard/ai-advisor-card"
 import { RevenueChart } from "@/components/dashboard/revenue-chart"
 import { QuickActions } from "@/components/dashboard/quick-actions"
 import { RecentOrdersTable } from "@/components/dashboard/recent-orders-table"
-import {
-  aiInsights,
-  aiActions,
-  businessHealthScore,
-} from "@/components/dashboard/data"
 import { getDashboardOverview } from "@/actions/dashboard/get-dashboard-overview"
 import { getDashboardRevenue } from "@/actions/dashboard/get-dashboard-revenue"
 import { getDashboardRecentOrders } from "@/actions/dashboard/get-dashboard-recent-orders"
+import { getDashboardAIInsights } from "@/actions/dashboard/get-dashboard-ai-insights"
 import { IndianRupee, ShoppingCart, Users, Package } from "lucide-react"
 
 export const dynamic = "force-dynamic"
@@ -19,6 +15,7 @@ export default async function DashboardPage() {
   const overview = await getDashboardOverview()
   const revenue = await getDashboardRevenue()
   const recentOrdersState = await getDashboardRecentOrders()
+  const aiInsightsState = await getDashboardAIInsights()
 
   const liveKpiCards = [
     {
@@ -70,9 +67,9 @@ export default async function DashboardPage() {
       <div className="grid gap-6 lg:grid-cols-5">
         <div className="lg:col-span-3">
           <AiAdvisorCard
-            healthScore={businessHealthScore}
-            insights={aiInsights}
-            actions={aiActions}
+            healthScore={aiInsightsState.data?.healthScore || 50}
+            insights={aiInsightsState.data?.insights || []}
+            actions={aiInsightsState.data?.actions || []}
           />
         </div>
         <div className="lg:col-span-2">

@@ -1,4 +1,4 @@
-import { IndianRupee, ShoppingCart, TrendingUp, Target } from "lucide-react"
+
 import type { Order, OrderStatsData } from "./types"
 
 export const orderStats: OrderStatsData[] = [
@@ -7,28 +7,28 @@ export const orderStats: OrderStatsData[] = [
     value: "₹12,45,000",
     change: "+18% this month",
     changeType: "positive",
-    icon: IndianRupee,
+    iconName: "IndianRupee",
   },
   {
     title: "Total Orders",
     value: "3,456",
     change: "+12% growth",
     changeType: "positive",
-    icon: ShoppingCart,
+    iconName: "ShoppingCart",
   },
   {
     title: "Average Order Value",
     value: "₹3,620",
     change: "+6% increase",
     changeType: "positive",
-    icon: TrendingUp,
+    iconName: "TrendingUp",
   },
   {
     title: "Profit Margin",
     value: "42%",
     change: "Healthy margin",
     changeType: "positive",
-    icon: Target,
+    iconName: "Percent", // Adjusted to match valid string type
   },
 ]
 

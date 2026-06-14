@@ -31,7 +31,14 @@ export async function getInventory(): Promise<InventoriesActionState> {
     return {
       isSuccess: true,
       message: "Inventory retrieved successfully",
-      data: items,
+      data: items.map(item => ({
+        ...item,
+        product: {
+          ...item.product,
+          price: Number(item.product.price),
+          cost: Number(item.product.cost),
+        }
+      })),
     };
   } catch (error: any) {
     console.error("Failed to retrieve inventory:", error);

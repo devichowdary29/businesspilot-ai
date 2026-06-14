@@ -1,4 +1,4 @@
-import { type LucideIcon } from "lucide-react"
+
 
 export type PaymentStatus = "Paid" | "Pending" | "Failed" | "Refunded"
 export type OrderStatus = "Processing" | "Shipped" | "Delivered" | "Cancelled"
@@ -46,5 +46,5 @@ export interface OrderStatsData {
   value: string
   change: string
   changeType: "positive" | "negative" | "neutral"
-  icon: LucideIcon
+  iconName: "IndianRupee" | "ShoppingCart" | "Percent" | "TrendingUp"
 }

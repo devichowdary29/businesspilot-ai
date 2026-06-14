@@ -80,7 +80,14 @@ export async function createInventory(
     return {
       isSuccess: true,
       message: "Inventory created successfully",
-      data: inventory,
+      data: {
+        ...inventory,
+        product: {
+          ...inventory.product,
+          price: Number(inventory.product.price),
+          cost: Number(inventory.product.cost),
+        }
+      },
     };
   } catch (error: any) {
     console.error("Failed to create inventory:", error);

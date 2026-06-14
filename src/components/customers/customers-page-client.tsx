@@ -8,16 +8,16 @@ import { CustomerCard } from "@/components/customers/customer-card"
 import { CustomerProfileDialog } from "@/components/customers/customer-profile-dialog"
 import { CustomerFormDialog } from "@/components/customers/customer-form-dialog"
 import { CustomerDeleteDialog } from "@/components/customers/customer-delete-dialog"
-import { customerStats } from "@/components/customers/data"
 import { Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import type { Customer, CustomerFilters, ViewMode } from "@/components/customers/types"
+import type { Customer, CustomerFilters, ViewMode, CustomerStatsData } from "@/components/customers/types"
 
 interface CustomersPageClientProps {
   initialCustomers: Customer[]
+  analytics: CustomerStatsData[]
 }
 
-export function CustomersPageClient({ initialCustomers }: CustomersPageClientProps) {
+export function CustomersPageClient({ initialCustomers, analytics }: CustomersPageClientProps) {
   const [customers, setCustomers] = React.useState<Customer[]>(initialCustomers)
   
   React.useEffect(() => {
@@ -78,7 +78,7 @@ export function CustomersPageClient({ initialCustomers }: CustomersPageClientPro
         </p>
       </div>
 
-      <CustomerStats stats={customerStats} />
+      <CustomerStats stats={analytics} />
 
       <CustomerToolbar
         filters={filters}

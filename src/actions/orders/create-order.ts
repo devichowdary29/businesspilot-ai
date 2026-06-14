@@ -114,7 +114,24 @@ export async function createOrder(
     return {
       isSuccess: true,
       message: "Order created successfully",
-      data: order,
+      data: {
+        ...order,
+        totalAmount: Number(order.totalAmount),
+        profit: Number(order.profit),
+        customer: {
+          ...order.customer,
+          totalSpent: Number(order.customer.totalSpent),
+        },
+        items: order.items.map(item => ({
+          ...item,
+          price: Number(item.price),
+          product: {
+            ...item.product,
+            price: Number(item.product.price),
+            cost: Number(item.product.cost),
+          }
+        }))
+      },
     };
   } catch (error: any) {
     console.error("Failed to create order:", error);

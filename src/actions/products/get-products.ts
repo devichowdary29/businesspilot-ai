@@ -40,7 +40,11 @@ export async function getProducts(
     return {
       isSuccess: true,
       message: "Products retrieved successfully",
-      data: products,
+      data: products.map(product => ({
+        ...product,
+        price: Number(product.price),
+        cost: Number(product.cost),
+      })),
     };
   } catch (error) {
     console.error("Failed to get products:", error);

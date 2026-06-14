@@ -28,7 +28,10 @@ export async function getCustomers(): Promise<CustomersActionState> {
     return {
       isSuccess: true,
       message: "Customers fetched successfully",
-      data: customers,
+      data: customers.map(customer => ({
+        ...customer,
+        totalSpent: Number(customer.totalSpent),
+      })),
     };
   } catch (error) {
     console.error("Failed to fetch customers:", error);

@@ -30,3 +30,13 @@ export interface DashboardRecentOrdersState {
     date: string;
   }[];
 }
+
+export interface DashboardAiInsightsState {
+  isSuccess: boolean;
+  message: string;
+  data?: {
+    healthScore: number;
+    insights: { text: string }[];
+    actions: { text: string }[];
+  };
+}

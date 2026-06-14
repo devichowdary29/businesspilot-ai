@@ -1,4 +1,4 @@
-import { Users, TrendingUp, Star, AlertTriangle } from "lucide-react"
+
 import type { Customer, CustomerStatsData } from "./types"
 
 export const customerStats: CustomerStatsData[] = [
@@ -7,28 +7,28 @@ export const customerStats: CustomerStatsData[] = [
     value: "1,245",
     change: "+9% growth",
     changeType: "positive",
-    icon: Users,
+    iconName: "Users",
   },
   {
     title: "Customer Lifetime Value",
     value: "₹18.5L",
     change: "+14% increase",
     changeType: "positive",
-    icon: TrendingUp,
+    iconName: "IndianRupee",
   },
   {
     title: "VIP Customers",
     value: "86",
     change: "High value users",
     changeType: "positive",
-    icon: Star,
+    iconName: "Star",
   },
   {
     title: "Churn Risk",
     value: "34",
     change: "Need attention",
     changeType: "negative",
-    icon: AlertTriangle,
+    iconName: "AlertTriangle",
   },
 ]
 

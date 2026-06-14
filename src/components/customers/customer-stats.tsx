@@ -1,6 +1,13 @@
 import { Card, CardContent } from "@/components/ui/card"
-import { ArrowUpRight, ArrowDownRight, AlertTriangle } from "lucide-react"
+import { ArrowUpRight, ArrowDownRight, AlertTriangle, Users, IndianRupee, Star } from "lucide-react"
 import type { CustomerStatsData } from "./types"
+
+const iconMap = {
+  Users: Users,
+  IndianRupee: IndianRupee,
+  Star: Star,
+  AlertTriangle: AlertTriangle,
+}
 
 interface CustomerStatsProps {
   stats: CustomerStatsData[]
@@ -20,7 +27,10 @@ export function CustomerStats({ stats }: CustomerStatsProps) {
                 {stat.title}
               </p>
               <div className="flex size-9 items-center justify-center rounded-lg bg-muted/60 text-muted-foreground transition-colors group-hover/stat:bg-primary/10 group-hover/stat:text-primary">
-                <stat.icon className="size-4" />
+                {(() => {
+                  const Icon = iconMap[stat.iconName] || Users
+                  return <Icon className="size-4" />
+                })()}
               </div>
             </div>
             <div className="mt-2">

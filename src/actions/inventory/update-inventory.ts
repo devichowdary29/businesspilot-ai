@@ -67,7 +67,14 @@ export async function updateInventory(
     return {
       isSuccess: true,
       message: "Inventory updated successfully",
-      data: inventory,
+      data: {
+        ...inventory,
+        product: {
+          ...inventory.product,
+          price: Number(inventory.product.price),
+          cost: Number(inventory.product.cost),
+        }
+      },
     };
   } catch (error: any) {
     console.error("Failed to update inventory:", error);

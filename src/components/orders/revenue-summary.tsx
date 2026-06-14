@@ -5,16 +5,10 @@ import { Badge } from "@/components/ui/badge"
 import { Sparkles, TrendingUp } from "lucide-react"
 import { Area, AreaChart, CartesianGrid, XAxis, Tooltip, ResponsiveContainer } from "recharts"
 
-const chartData = [
-  { month: "Jan", revenue: 450000, profit: 180000 },
-  { month: "Feb", revenue: 520000, profit: 210000 },
-  { month: "Mar", revenue: 680000, profit: 280000 },
-  { month: "Apr", revenue: 840000, profit: 350000 },
-  { month: "May", revenue: 1050000, profit: 440000 },
-  { month: "Jun", revenue: 1245000, profit: 520000 },
-]
 
-export function RevenueSummary() {
+import type { OrderForecastState, ChartDataPoint } from "@/actions/orders/types"
+
+export function RevenueSummary({ forecast, chartData }: { forecast?: OrderForecastState["data"], chartData?: ChartDataPoint[] }) {
   return (
     <Card className="overflow-hidden border-primary/10 transition-shadow duration-200 hover:shadow-lg">
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/[0.02] via-transparent to-primary/[0.01]" />
@@ -34,7 +28,7 @@ export function RevenueSummary() {
       <CardContent className="relative space-y-6">
         <div className="h-[200px] w-full mt-4">
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={chartData} margin={{ top: 5, right: 0, left: 0, bottom: 0 }}>
+            <AreaChart data={chartData || []} margin={{ top: 5, right: 0, left: 0, bottom: 0 }}>
               <defs>
                 <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="var(--primary)" stopOpacity={0.3}/>
@@ -63,11 +57,13 @@ export function RevenueSummary() {
           </div>
           <div>
             <p className="text-sm font-medium leading-relaxed">
-              Revenue increased by 18% this month. High-margin accessories contributed 45% of total profits.
+              {forecast?.insight1} {forecast?.insight2}
             </p>
-            <div className="mt-2 rounded-md bg-background/60 p-2 text-sm border shadow-sm">
-              <span className="font-semibold text-primary">Recommendation:</span> Increase advertising spend on the accessories category.
-            </div>
+            {forecast?.recommendation && (
+              <div className="mt-2 rounded-md bg-background/60 p-2 text-sm border shadow-sm">
+                <span className="font-semibold text-primary">Recommendation:</span> {forecast.recommendation}
+              </div>
+            )}
           </div>
         </div>
       </CardContent>

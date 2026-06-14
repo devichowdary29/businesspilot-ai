@@ -1,6 +1,13 @@
 import { Card, CardContent } from "@/components/ui/card"
-import { ArrowUpRight, ArrowDownRight, AlertTriangle } from "lucide-react"
+import { ArrowUpRight, ArrowDownRight, AlertTriangle, TrendingUp, Package, ShieldAlert } from "lucide-react"
 import type { InventoryStatsData } from "./types"
+
+const iconMap = {
+  TrendingUp: TrendingUp,
+  Package: Package,
+  AlertTriangle: AlertTriangle,
+  ShieldAlert: ShieldAlert,
+}
 
 interface InventoryStatsProps {
   stats: InventoryStatsData[]
@@ -20,7 +27,10 @@ export function InventoryStats({ stats }: InventoryStatsProps) {
                 {stat.title}
               </p>
               <div className="flex size-9 items-center justify-center rounded-lg bg-muted/60 text-muted-foreground transition-colors group-hover/stat:bg-primary/10 group-hover/stat:text-primary">
-                <stat.icon className="size-4" />
+                {(() => {
+                  const Icon = iconMap[stat.iconName] || Package
+                  return <Icon className="size-4" />
+                })()}
               </div>
             </div>
             <div className="mt-2">

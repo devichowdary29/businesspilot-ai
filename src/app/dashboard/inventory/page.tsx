@@ -1,6 +1,9 @@
 import { InventoryPageClient } from "@/components/inventory/inventory-page-client"
-import type { InventoryItem } from "@/components/inventory/types"
+import { Package, TrendingUp, AlertTriangle, ShieldAlert } from "lucide-react"
+import type { InventoryItem, InventoryStatsData } from "@/components/inventory/types"
 import type { AvailableProductForInventory } from "@/actions/inventory/types"
+import { getInventoryAnalytics } from "@/actions/inventory/get-inventory-analytics"
+import { getInventoryIntelligence } from "@/actions/inventory/get-inventory-intelligence"
 
 export const dynamic = "force-dynamic"
 export const runtime = "nodejs"
@@ -9,9 +12,11 @@ export default async function InventoryPage() {
   const { getInventory } = await import("@/actions/inventory/get-inventory")
   const { getProducts } = await import("@/actions/products/get-products")
   
-  const [response, productsResponse] = await Promise.all([
+  const [response, productsResponse, analyticsResponse, intelligenceResponse] = await Promise.all([
     getInventory(),
-    getProducts()
+    getProducts(),
+    getInventoryAnalytics(),
+    getInventoryIntelligence()
   ])
   
   let mappedItems: InventoryItem[] = []
@@ -80,5 +85,36 @@ export default async function InventoryPage() {
       .map(p => ({ id: p.id, name: p.name }))
   }
 
-  return <InventoryPageClient initialItems={mappedItems} availableProducts={availableProducts} />
+  const liveStats: InventoryStatsData[] = [
+    {
+      title: "Inventory Value",
+      value: `₹${(analyticsResponse.data?.inventoryValue || 0).toLocaleString("en-IN")}`,
+      change: "Live Database Metric",
+      changeType: "neutral",
+      iconName: "TrendingUp",
+    },
+    {
+      title: "Healthy Stock",
+      value: (analyticsResponse.data?.healthyStock || 0).toString(),
+      change: "Live Database Metric",
+      changeType: "neutral",
+      iconName: "Package",
+    },
+    {
+      title: "Low Stock",
+      value: (analyticsResponse.data?.lowStock || 0).toString(),
+      change: "Live Database Metric",
+      changeType: "neutral",
+      iconName: "AlertTriangle",
+    },
+    {
+      title: "Critical Items",
+      value: (analyticsResponse.data?.criticalItems || 0).toString(),
+      change: "Live Database Metric",
+      changeType: "neutral",
+      iconName: "ShieldAlert",
+    },
+  ]
+
+  return <InventoryPageClient initialItems={mappedItems} availableProducts={availableProducts} analytics={liveStats} intelligence={intelligenceResponse.data} />
 }
