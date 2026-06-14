@@ -6,6 +6,7 @@ import { createMessageSchema } from "./validations";
 import { CreateMessageInput, MessageActionState } from "./types";
 import { generateAIResponse } from "@/lib/ai/generate-response";
 import { ProviderMessage } from "@/lib/ai/types";
+import { getBusinessContext } from "@/lib/ai/business-context";
 
 export async function createMessage(
   data: CreateMessageInput
@@ -69,18 +70,16 @@ export async function createMessage(
       content: msg.content,
     }));
 
+    // Fetch real business context for the AI
+    const businessContext = await getBusinessContext(orgId);
+
     // Call AI Service
     let aiResponseContent = "";
     try {
       const response = await generateAIResponse({
         conversationHistory: history,
         latestQuestion: content,
-        businessContext: JSON.stringify({
-          products: [],
-          customers: [],
-          orders: [],
-          inventory: []
-        }), // Placeholder business context
+        businessContext,
       });
       aiResponseContent = response.content;
     } catch (aiError) {
