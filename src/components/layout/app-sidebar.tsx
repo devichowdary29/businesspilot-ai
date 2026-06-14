@@ -13,6 +13,7 @@ import {
   ChevronsUpDown,
   LogOut,
   CreditCard,
+  FileText,
   type LucideIcon,
 } from "lucide-react"
 
@@ -83,6 +84,11 @@ const secondaryNavItems: NavItem[] = [
     title: "AI Advisor",
     href: "/dashboard/ai-advisor",
     icon: Sparkles,
+  },
+  {
+    title: "AI Reports",
+    href: "/dashboard/reports",
+    icon: FileText,
   },
   {
     title: "Settings",
