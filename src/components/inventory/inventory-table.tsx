@@ -1,6 +1,6 @@
 "use client"
 
-import { MoreHorizontal, FileText, ShoppingCart, Mail, Eye } from "lucide-react"
+import { MoreHorizontal, FileText, ShoppingCart, Mail, Eye, Edit } from "lucide-react"
 import {
   Table,
   TableBody,
@@ -23,7 +23,7 @@ import type { InventoryItem } from "./types"
 
 interface InventoryTableProps {
   items: InventoryItem[]
-  onAction: (item: InventoryItem, action: "view" | "reorder") => void
+  onAction: (item: InventoryItem, action: "view" | "reorder" | "edit") => void
 }
 
 export function InventoryTable({ items, onAction }: InventoryTableProps) {
@@ -100,6 +100,10 @@ export function InventoryTable({ items, onAction }: InventoryTableProps) {
                     <DropdownMenuItem onClick={() => onAction(item, "view")}>
                       <Eye className="mr-2 size-4" />
                       View Details
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => onAction(item, "edit")}>
+                      <Edit className="mr-2 size-4" />
+                      Edit Inventory
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => onAction(item, "reorder")}>
                       <ShoppingCart className="mr-2 size-4" />

@@ -22,3 +22,12 @@ export interface AvailableProductForInventory {
   id: string;
   name: string;
 }
+
+export interface UpdateInventoryInput {
+  id: string;
+  quantity: number;
+  minimumStock: number;
+  supplier?: string;
+  leadTimeDays?: number;
+  dailySalesAvg?: number;
+}

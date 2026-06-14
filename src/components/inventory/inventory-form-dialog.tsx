@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dialog"
 import { useRouter } from "next/navigation"
 import { createInventory } from "@/actions/inventory/create-inventory"
+import { updateInventory } from "@/actions/inventory/update-inventory"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
@@ -28,12 +29,23 @@ interface InventoryFormDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   products: AvailableProductForInventory[]
+  initialData?: {
+    id: string
+    productId: string
+    productName: string
+    quantity: number
+    minimumStock: number
+    supplier?: string
+    leadTimeDays?: number
+    dailySalesAvg?: number
+  }
 }
 
 export function InventoryFormDialog({
   open,
   onOpenChange,
   products,
+  initialData,
 }: InventoryFormDialogProps) {
   const router = useRouter()
   const [isPending, startTransition] = React.useTransition()
@@ -47,17 +59,28 @@ export function InventoryFormDialog({
   
   const [errors, setErrors] = React.useState<Record<string, string>>({})
 
+  const isEdit = !!initialData
+
   React.useEffect(() => {
     if (open) {
-      setProductId("")
-      setQuantity(0)
-      setMinimumStock(10)
-      setSupplier("")
-      setLeadTimeDays(7)
-      setDailySalesAvg(0)
+      if (isEdit && initialData) {
+        setProductId(initialData.productId)
+        setQuantity(initialData.quantity)
+        setMinimumStock(initialData.minimumStock)
+        setSupplier(initialData.supplier || "")
+        setLeadTimeDays(initialData.leadTimeDays || 0)
+        setDailySalesAvg(initialData.dailySalesAvg || 0)
+      } else {
+        setProductId("")
+        setQuantity(0)
+        setMinimumStock(10)
+        setSupplier("")
+        setLeadTimeDays(7)
+        setDailySalesAvg(0)
+      }
       setErrors({})
     }
-  }, [open])
+  }, [open, isEdit, initialData])
 
   function validate(): boolean {
     const newErrors: Record<string, string> = {}
@@ -75,14 +98,18 @@ export function InventoryFormDialog({
 
     startTransition(async () => {
       setErrors({})
-      const response = await createInventory({
-        productId,
+      
+      const payload = {
         quantity,
         minimumStock,
         supplier: supplier || undefined,
         leadTimeDays: leadTimeDays || undefined,
         dailySalesAvg: dailySalesAvg || undefined,
-      })
+      }
+
+      const response = isEdit && initialData
+        ? await updateInventory({ id: initialData.id, ...payload })
+        : await createInventory({ productId, ...payload })
 
       if (response.isSuccess) {
         onOpenChange(false)
@@ -97,9 +124,11 @@ export function InventoryFormDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Add Inventory Tracking</DialogTitle>
+          <DialogTitle>{isEdit ? "Update Inventory" : "Add Inventory Tracking"}</DialogTitle>
           <DialogDescription>
-            Select a product to start tracking its inventory metrics.
+            {isEdit 
+              ? "Update stock tracking metrics for this product." 
+              : "Select a product to start tracking its inventory metrics."}
           </DialogDescription>
         </DialogHeader>
 
@@ -112,26 +141,34 @@ export function InventoryFormDialog({
 
           <div className="grid gap-2">
             <Label htmlFor="product">Product</Label>
-            <Select
-              value={productId}
-              onValueChange={setProductId}
-              disabled={isPending || products.length === 0}
-            >
-              <SelectTrigger id="product">
-                <SelectValue placeholder={products.length > 0 ? "Select a product" : "No available products"} />
-              </SelectTrigger>
-              <SelectContent>
-                {products.map((p) => (
-                  <SelectItem key={p.id} value={p.id}>
-                    {p.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            {isEdit && initialData ? (
+              <Input
+                id="product"
+                value={initialData.productName}
+                disabled
+              />
+            ) : (
+              <Select
+                value={productId}
+                onValueChange={setProductId}
+                disabled={isPending || products.length === 0}
+              >
+                <SelectTrigger id="product">
+                  <SelectValue placeholder={products.length > 0 ? "Select a product" : "No available products"} />
+                </SelectTrigger>
+                <SelectContent>
+                  {products.map((p) => (
+                    <SelectItem key={p.id} value={p.id}>
+                      {p.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
             {errors.productId && (
               <p className="text-xs text-destructive">{errors.productId}</p>
             )}
-            {products.length === 0 && (
+            {!isEdit && products.length === 0 && (
               <p className="text-xs text-muted-foreground">
                 All your products are already being tracked. Create a new product first.
               </p>
@@ -217,9 +254,9 @@ export function InventoryFormDialog({
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={isPending || products.length === 0}>
+            <Button type="submit" disabled={isPending || (!isEdit && products.length === 0)}>
               {isPending && <Loader2 className="mr-2 size-4 animate-spin" />}
-              {isPending ? "Creating..." : "Start Tracking"}
+              {isPending ? (isEdit ? "Updating..." : "Creating...") : (isEdit ? "Update Inventory" : "Start Tracking")}
             </Button>
           </DialogFooter>
         </form>

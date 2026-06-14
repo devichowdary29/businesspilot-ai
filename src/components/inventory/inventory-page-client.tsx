@@ -33,6 +33,7 @@ export function InventoryPageClient({ initialItems, availableProducts }: Invento
   const [selectedItem, setSelectedItem] = React.useState<InventoryItem | null>(null)
   const [dialogOpen, setDialogOpen] = React.useState(false)
   const [isAddInventoryOpen, setIsAddInventoryOpen] = React.useState(false)
+  const [inventoryToEdit, setInventoryToEdit] = React.useState<InventoryItem | null>(null)
 
   React.useEffect(() => {
     setItems(initialItems)
@@ -53,11 +54,19 @@ export function InventoryPageClient({ initialItems, availableProducts }: Invento
     })
   }, [items, filters])
 
-  const handleAction = (item: InventoryItem, action: "view" | "reorder") => {
+  const handleAction = (item: InventoryItem, action: "view" | "reorder" | "edit") => {
     setSelectedItem(item)
     if (action === "reorder") {
       setDialogOpen(true)
+    } else if (action === "edit") {
+      setInventoryToEdit(item)
+      setIsAddInventoryOpen(true)
     }
+  }
+
+  const handleOpenAddInventory = () => {
+    setInventoryToEdit(null)
+    setIsAddInventoryOpen(true)
   }
 
   return (
@@ -65,7 +74,7 @@ export function InventoryPageClient({ initialItems, availableProducts }: Invento
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between">
           <h2 className="text-2xl font-bold tracking-tight">Inventory Intelligence Center</h2>
-          <Button onClick={() => setIsAddInventoryOpen(true)}>
+          <Button onClick={handleOpenAddInventory}>
             <Plus className="mr-2 size-4" />
             Add Inventory Tracking
           </Button>
@@ -127,8 +136,21 @@ export function InventoryPageClient({ initialItems, availableProducts }: Invento
 
       <InventoryFormDialog
         open={isAddInventoryOpen}
-        onOpenChange={setIsAddInventoryOpen}
+        onOpenChange={(open) => {
+          setIsAddInventoryOpen(open)
+          if (!open) setInventoryToEdit(null)
+        }}
         products={availableProducts}
+        initialData={inventoryToEdit ? {
+          id: inventoryToEdit.id,
+          productId: "", // Fallback, not needed in UI display
+          productName: inventoryToEdit.productName,
+          quantity: inventoryToEdit.currentStock,
+          minimumStock: inventoryToEdit.minimumStock,
+          supplier: inventoryToEdit.supplierName,
+          leadTimeDays: inventoryToEdit.supplierLeadTime,
+          dailySalesAvg: inventoryToEdit.averageDailySales,
+        } : undefined}
       />
     </div>
   )

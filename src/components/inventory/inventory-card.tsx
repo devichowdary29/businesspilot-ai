@@ -1,11 +1,12 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { InventoryHealthBadge } from "./inventory-health-badge"
-import { Sparkles } from "lucide-react"
+import { Sparkles, Edit } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import type { InventoryItem } from "./types"
 
 interface InventoryCardProps {
   item: InventoryItem
-  onAction: (item: InventoryItem, action: "view" | "reorder") => void
+  onAction: (item: InventoryItem, action: "view" | "reorder" | "edit") => void
 }
 
 export function InventoryCard({ item, onAction }: InventoryCardProps) {
@@ -23,6 +24,19 @@ export function InventoryCard({ item, onAction }: InventoryCardProps) {
           />
           <div className="absolute top-3 left-3">
             <InventoryHealthBadge level={item.riskLevel} />
+          </div>
+          <div className="absolute top-3 right-3 opacity-0 group-hover/inv-card:opacity-100 transition-opacity">
+            <Button
+              size="icon"
+              variant="secondary"
+              className="size-8 rounded-full shadow-md bg-background/80 backdrop-blur hover:bg-background"
+              onClick={(e) => {
+                e.stopPropagation()
+                onAction(item, "edit")
+              }}
+            >
+              <Edit className="size-4 text-foreground" />
+            </Button>
           </div>
         </div>
 
