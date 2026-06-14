@@ -39,7 +39,18 @@ export function OrdersPageClient({
   })
   
   const [selectedOrder, setSelectedOrder] = React.useState<Order | null>(null)
+  const [orderToEdit, setOrderToEdit] = React.useState<Order | null>(null)
   const [isAddOrderOpen, setIsAddOrderOpen] = React.useState(false)
+
+  const handleEdit = (order: Order) => {
+    setOrderToEdit(order)
+    setIsAddOrderOpen(true)
+  }
+
+  const handleOpenAddOrder = () => {
+    setOrderToEdit(null)
+    setIsAddOrderOpen(true)
+  }
 
   const filteredOrders = React.useMemo(() => {
     return orders.filter((order) => {
@@ -61,7 +72,7 @@ export function OrdersPageClient({
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between">
           <h2 className="text-2xl font-bold tracking-tight">Orders & Revenue</h2>
-          <Button onClick={() => setIsAddOrderOpen(true)}>
+          <Button onClick={handleOpenAddOrder}>
             <Plus className="mr-2 size-4" />
             Create Order
           </Button>
@@ -97,6 +108,7 @@ export function OrdersPageClient({
         <OrdersTable
           orders={filteredOrders}
           onViewOrder={setSelectedOrder}
+          onEdit={handleEdit}
         />
       ) : (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -105,6 +117,7 @@ export function OrdersPageClient({
               key={order.id}
               order={order}
               onViewOrder={setSelectedOrder}
+              onEdit={handleEdit}
             />
           ))}
         </div>
@@ -118,9 +131,13 @@ export function OrdersPageClient({
 
       <OrderFormDialog
         open={isAddOrderOpen}
-        onOpenChange={setIsAddOrderOpen}
+        onOpenChange={(open) => {
+          setIsAddOrderOpen(open)
+          if (!open) setOrderToEdit(null)
+        }}
         customers={availableCustomers}
         products={availableProducts}
+        initialData={orderToEdit || undefined}
       />
     </div>
   )

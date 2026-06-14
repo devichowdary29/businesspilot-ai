@@ -24,6 +24,12 @@ export interface CreateOrderInput {
   items: OrderItemInput[];
 }
 
+export interface UpdateOrderInput {
+  id: string;
+  customerId: string;
+  items: OrderItemInput[];
+}
+
 export interface AvailableCustomer {
   id: string;
   name: string;

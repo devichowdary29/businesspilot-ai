@@ -6,9 +6,10 @@ import type { Order } from "./types"
 interface OrderCardProps {
   order: Order
   onViewOrder: (order: Order) => void
+  onEdit?: (order: Order) => void
 }
 
-export function OrderCard({ order, onViewOrder }: OrderCardProps) {
+export function OrderCard({ order, onViewOrder, onEdit }: OrderCardProps) {
   const totalProducts = order.products.reduce((sum, p) => sum + p.quantity, 0)
 
   return (

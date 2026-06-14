@@ -11,3 +11,9 @@ export const createOrderSchema = z.object({
   customerId: z.string().min(1, "Customer is required"),
   items: z.array(orderItemSchema).min(1, "At least one item is required"),
 });
+
+export const updateOrderSchema = z.object({
+  id: z.string().min(1, "Order ID is required"),
+  customerId: z.string().min(1, "Customer is required"),
+  items: z.array(orderItemSchema).min(1, "At least one item is required"),
+});

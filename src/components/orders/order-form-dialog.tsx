@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dialog"
 import { useRouter } from "next/navigation"
 import { createOrder } from "@/actions/orders/create-order"
+import { updateOrder } from "@/actions/orders/update-order"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
@@ -23,12 +24,14 @@ import {
 } from "@/components/ui/select"
 import { Loader2, Plus, Trash2 } from "lucide-react"
 import type { AvailableCustomer, AvailableProduct } from "@/actions/orders/types"
+import type { Order } from "@/components/orders/types"
 
 interface OrderFormDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   customers: AvailableCustomer[]
   products: AvailableProduct[]
+  initialData?: Order
 }
 
 export function OrderFormDialog({
@@ -36,6 +39,7 @@ export function OrderFormDialog({
   onOpenChange,
   customers,
   products,
+  initialData,
 }: OrderFormDialogProps) {
   const router = useRouter()
   const [isPending, startTransition] = React.useTransition()
@@ -44,13 +48,23 @@ export function OrderFormDialog({
   const [items, setItems] = React.useState<Array<{ productId: string; quantity: number }>>([])
   const [errors, setErrors] = React.useState<Record<string, string>>({})
 
+  const isEdit = !!initialData
+
   React.useEffect(() => {
     if (open) {
-      setCustomerId("")
-      setItems([])
+      if (initialData) {
+        setCustomerId(initialData.customerId)
+        setItems(initialData.products.map(p => ({
+          productId: p.productId,
+          quantity: p.quantity,
+        })))
+      } else {
+        setCustomerId("")
+        setItems([])
+      }
       setErrors({})
     }
-  }, [open])
+  }, [open, initialData])
 
   function validate(): boolean {
     const newErrors: Record<string, string> = {}
@@ -72,10 +86,15 @@ export function OrderFormDialog({
 
     startTransition(async () => {
       setErrors({})
-      const response = await createOrder({
+      
+      const payload = {
         customerId,
         items,
-      })
+      }
+
+      const response = initialData
+        ? await updateOrder({ id: initialData.id, ...payload })
+        : await createOrder(payload)
 
       if (response.isSuccess) {
         onOpenChange(false)
@@ -112,9 +131,9 @@ export function OrderFormDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Create New Order</DialogTitle>
+          <DialogTitle>{isEdit ? "Update Order" : "Create New Order"}</DialogTitle>
           <DialogDescription>
-            Select a customer and add products to create a new order.
+            {isEdit ? "Modify the details of the selected order." : "Select a customer and add products to create a new order."}
           </DialogDescription>
         </DialogHeader>
 
@@ -236,7 +255,7 @@ export function OrderFormDialog({
             </Button>
             <Button type="submit" disabled={isPending}>
               {isPending && <Loader2 className="mr-2 size-4 animate-spin" />}
-              {isPending ? "Creating Order..." : "Create Order"}
+              {isPending ? (isEdit ? "Updating Order..." : "Creating Order...") : (isEdit ? "Update Order" : "Create Order")}
             </Button>
           </DialogFooter>
         </form>

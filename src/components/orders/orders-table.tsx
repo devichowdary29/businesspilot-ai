@@ -1,6 +1,6 @@
 "use client"
 
-import { MoreHorizontal, Download, RotateCcw, Mail, Eye } from "lucide-react"
+import { MoreHorizontal, FileText, Download, Truck, Edit, RotateCcw, Mail, Eye } from "lucide-react"
 import {
   Table,
   TableBody,
@@ -24,9 +24,10 @@ import type { Order } from "./types"
 interface OrdersTableProps {
   orders: Order[]
   onViewOrder: (order: Order) => void
+  onEdit: (order: Order) => void
 }
 
-export function OrdersTable({ orders, onViewOrder }: OrdersTableProps) {
+export function OrdersTable({ orders, onViewOrder, onEdit }: OrdersTableProps) {
   return (
     <div className="rounded-xl border bg-card ring-1 ring-foreground/[0.06]">
       <Table>
@@ -100,9 +101,14 @@ export function OrdersTable({ orders, onViewOrder }: OrdersTableProps) {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-48">
                     <DropdownMenuItem onClick={() => onViewOrder(order)}>
-                      <Eye className="mr-2 size-4" />
-                      View Order
+                      <FileText className="mr-2 size-4" />
+                      View Details
                     </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => onEdit(order)}>
+                      <Edit className="mr-2 size-4" />
+                      Edit Order
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
                     <DropdownMenuItem>
                       <Download className="mr-2 size-4" />
                       Download Invoice

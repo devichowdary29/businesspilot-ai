@@ -36,11 +36,12 @@ export const orders: Order[] = [
   {
     id: "ORD-001",
     orderNumber: "#10042",
+    customerId: "mock-customer-id",
     customerName: "Arjun Mehta",
     customerAvatar: "https://api.dicebear.com/9.x/notionists/svg?seed=Arjun",
     products: [
-      { name: "Wireless Mouse", quantity: 2, price: 999 },
-      { name: "Mechanical Keyboard", quantity: 1, price: 2499 }
+      { productId: "mock-id", name: "Wireless Mouse", quantity: 2, price: 999 },
+      { productId: "mock-id", name: "Mechanical Keyboard", quantity: 1, price: 2499 }
     ],
     orderDate: "10 Jun 2026",
     totalAmount: 4497,
@@ -54,10 +55,11 @@ export const orders: Order[] = [
   {
     id: "ORD-002",
     orderNumber: "#10043",
+    customerId: "mock-customer-id",
     customerName: "Neha Sharma",
     customerAvatar: "https://api.dicebear.com/9.x/notionists/svg?seed=Neha",
     products: [
-      { name: "Laptop Stand", quantity: 1, price: 1299 }
+      { productId: "mock-id", name: "Laptop Stand", quantity: 1, price: 1299 }
     ],
     orderDate: "11 Jun 2026",
     totalAmount: 1299,
@@ -71,11 +73,12 @@ export const orders: Order[] = [
   {
     id: "ORD-003",
     orderNumber: "#10044",
+    customerId: "mock-customer-id",
     customerName: "Rohan Kumar",
     customerAvatar: "https://api.dicebear.com/9.x/notionists/svg?seed=Rohan",
     products: [
-      { name: "USB-C Hub", quantity: 1, price: 1899 },
-      { name: "Webcam", quantity: 1, price: 2999 }
+      { productId: "mock-id", name: "USB-C Hub", quantity: 1, price: 1899 },
+      { productId: "mock-id", name: "Webcam", quantity: 1, price: 2999 }
     ],
     orderDate: "11 Jun 2026",
     totalAmount: 4898,
@@ -89,10 +92,11 @@ export const orders: Order[] = [
   {
     id: "ORD-004",
     orderNumber: "#10045",
+    customerId: "mock-customer-id",
     customerName: "Priya Desai",
     customerAvatar: "https://api.dicebear.com/9.x/notionists/svg?seed=Priya",
     products: [
-      { name: "Monitor Light Bar", quantity: 1, price: 3499 }
+      { productId: "mock-id", name: "Monitor Light Bar", quantity: 1, price: 3499 }
     ],
     orderDate: "12 Jun 2026",
     totalAmount: 3499,
@@ -106,10 +110,11 @@ export const orders: Order[] = [
   {
     id: "ORD-005",
     orderNumber: "#10046",
+    customerId: "mock-customer-id",
     customerName: "Aditya Singh",
     customerAvatar: "https://api.dicebear.com/9.x/notionists/svg?seed=Aditya",
     products: [
-      { name: "Noise Cancelling Headphones", quantity: 2, price: 4999 }
+      { productId: "mock-id", name: "Noise Cancelling Headphones", quantity: 2, price: 4999 }
     ],
     orderDate: "12 Jun 2026",
     totalAmount: 9998,
@@ -123,11 +128,12 @@ export const orders: Order[] = [
   {
     id: "ORD-006",
     orderNumber: "#10047",
+    customerId: "mock-customer-id",
     customerName: "Kavya Reddy",
     customerAvatar: "https://api.dicebear.com/9.x/notionists/svg?seed=Kavya",
     products: [
-      { name: "Bluetooth Speaker", quantity: 1, price: 1999 },
-      { name: "Wireless Mouse", quantity: 1, price: 999 }
+      { productId: "mock-id", name: "Bluetooth Speaker", quantity: 1, price: 1999 },
+      { productId: "mock-id", name: "Wireless Mouse", quantity: 1, price: 999 }
     ],
     orderDate: "12 Jun 2026",
     totalAmount: 2998,
@@ -141,10 +147,11 @@ export const orders: Order[] = [
   {
     id: "ORD-007",
     orderNumber: "#10048",
+    customerId: "mock-customer-id",
     customerName: "Vikram Malhotra",
     customerAvatar: "https://api.dicebear.com/9.x/notionists/svg?seed=Vikram",
     products: [
-      { name: "Webcam", quantity: 3, price: 2999 }
+      { productId: "mock-id", name: "Webcam", quantity: 3, price: 2999 }
     ],
     orderDate: "13 Jun 2026",
     totalAmount: 8997,
@@ -158,10 +165,11 @@ export const orders: Order[] = [
   {
     id: "ORD-008",
     orderNumber: "#10049",
+    customerId: "mock-customer-id",
     customerName: "Ananya Patel",
     customerAvatar: "https://api.dicebear.com/9.x/notionists/svg?seed=Ananya",
     products: [
-      { name: "Mechanical Keyboard", quantity: 1, price: 2499 }
+      { productId: "mock-id", name: "Mechanical Keyboard", quantity: 1, price: 2499 }
     ],
     orderDate: "13 Jun 2026",
     totalAmount: 2499,
@@ -175,11 +183,12 @@ export const orders: Order[] = [
   {
     id: "ORD-009",
     orderNumber: "#10050",
+    customerId: "mock-customer-id",
     customerName: "Sanjay Gupta",
     customerAvatar: "https://api.dicebear.com/9.x/notionists/svg?seed=Sanjay",
     products: [
-      { name: "Laptop Stand", quantity: 2, price: 1299 },
-      { name: "USB-C Hub", quantity: 2, price: 1899 }
+      { productId: "mock-id", name: "Laptop Stand", quantity: 2, price: 1299 },
+      { productId: "mock-id", name: "USB-C Hub", quantity: 2, price: 1899 }
     ],
     orderDate: "13 Jun 2026",
     totalAmount: 6396,
@@ -193,11 +202,12 @@ export const orders: Order[] = [
   {
     id: "ORD-010",
     orderNumber: "#10051",
+    customerId: "mock-customer-id",
     customerName: "Meera Nair",
     customerAvatar: "https://api.dicebear.com/9.x/notionists/svg?seed=Meera",
     products: [
-      { name: "Noise Cancelling Headphones", quantity: 1, price: 4999 },
-      { name: "Bluetooth Speaker", quantity: 1, price: 1999 }
+      { productId: "mock-id", name: "Noise Cancelling Headphones", quantity: 1, price: 4999 },
+      { productId: "mock-id", name: "Bluetooth Speaker", quantity: 1, price: 1999 }
     ],
     orderDate: "13 Jun 2026",
     totalAmount: 6998,
@@ -211,10 +221,11 @@ export const orders: Order[] = [
   {
     id: "ORD-011",
     orderNumber: "#10052",
+    customerId: "mock-customer-id",
     customerName: "Karan Johar",
     customerAvatar: "https://api.dicebear.com/9.x/notionists/svg?seed=Karan",
     products: [
-      { name: "Monitor Light Bar", quantity: 2, price: 3499 }
+      { productId: "mock-id", name: "Monitor Light Bar", quantity: 2, price: 3499 }
     ],
     orderDate: "14 Jun 2026",
     totalAmount: 6998,
@@ -228,10 +239,11 @@ export const orders: Order[] = [
   {
     id: "ORD-012",
     orderNumber: "#10053",
+    customerId: "mock-customer-id",
     customerName: "Sneha Reddy",
     customerAvatar: "https://api.dicebear.com/9.x/notionists/svg?seed=Sneha",
     products: [
-      { name: "Wireless Mouse", quantity: 5, price: 999 }
+      { productId: "mock-id", name: "Wireless Mouse", quantity: 5, price: 999 }
     ],
     orderDate: "14 Jun 2026",
     totalAmount: 4995,

@@ -40,9 +40,11 @@ export default async function OrdersPage() {
       return {
         id: order.id,
         orderNumber: `ORD-${order.id.slice(0, 8).toUpperCase()}`,
+        customerId: order.customerId,
         customerName: order.customer?.name || "Unknown Customer",
         customerAvatar: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(order.customer?.name || "U")}`,
         products: order.items.map(item => ({
+          productId: item.productId,
           name: item.product?.name || "Unknown Product",
           quantity: item.quantity,
           price: Number(item.price),

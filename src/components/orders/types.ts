@@ -10,6 +10,7 @@ export type AiOrderInsightType =
   | "Growing Category"
 
 export interface OrderProduct {
+  productId: string
   name: string
   quantity: number
   price: number
@@ -18,6 +19,7 @@ export interface OrderProduct {
 export interface Order {
   id: string
   orderNumber: string
+  customerId: string
   customerName: string
   customerAvatar: string
   products: OrderProduct[]
