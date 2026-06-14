@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 import { createMessageSchema } from "./validations";
 import { CreateMessageInput, MessageActionState } from "./types";
+import { generateAIResponse } from "@/lib/ai/generate-response";
+import { ProviderMessage } from "@/lib/ai/types";
 
 export async function createMessage(
   data: CreateMessageInput
@@ -43,11 +45,55 @@ export async function createMessage(
     }
 
     // Create USER message
-    const message = await prisma.aIMessage.create({
+    const userMessage = await prisma.aIMessage.create({
       data: {
         conversationId,
         content,
         role: "USER",
+      },
+    });
+
+    // Load Conversation Context
+    const conversationWithMessages = await prisma.aIConversation.findUnique({
+      where: { id: conversationId },
+      include: {
+        messages: {
+          orderBy: { createdAt: "asc" },
+        },
+      },
+    });
+
+    // Map to ProviderMessage
+    const history: ProviderMessage[] = (conversationWithMessages?.messages || []).map(msg => ({
+      role: msg.role as ProviderMessage["role"],
+      content: msg.content,
+    }));
+
+    // Call AI Service
+    let aiResponseContent = "";
+    try {
+      const response = await generateAIResponse({
+        conversationHistory: history,
+        latestQuestion: content,
+        businessContext: JSON.stringify({
+          products: [],
+          customers: [],
+          orders: [],
+          inventory: []
+        }), // Placeholder business context
+      });
+      aiResponseContent = response.content;
+    } catch (aiError) {
+      console.error("AI Generation failed:", aiError);
+      aiResponseContent = "I apologize, but I am temporarily unable to analyze your request. Please try again shortly.";
+    }
+
+    // Store ASSISTANT Message
+    await prisma.aIMessage.create({
+      data: {
+        conversationId,
+        content: aiResponseContent,
+        role: "ASSISTANT",
       },
     });
 
@@ -59,8 +105,8 @@ export async function createMessage(
 
     return {
       isSuccess: true,
-      message: "Message created successfully",
-      data: message,
+      message: "Message processed successfully",
+      data: userMessage, // Returning user message to satisfy type constraint
     };
   } catch (error: any) {
     console.error("Failed to create message:", error);
