@@ -1,12 +1,12 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { InventoryHealthBadge } from "./inventory-health-badge"
-import { Sparkles, Edit } from "lucide-react"
+import { Sparkles, Edit, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import type { InventoryItem } from "./types"
 
 interface InventoryCardProps {
   item: InventoryItem
-  onAction: (item: InventoryItem, action: "view" | "reorder" | "edit") => void
+  onAction: (item: InventoryItem, action: "view" | "reorder" | "edit" | "delete") => void
 }
 
 export function InventoryCard({ item, onAction }: InventoryCardProps) {
@@ -25,7 +25,7 @@ export function InventoryCard({ item, onAction }: InventoryCardProps) {
           <div className="absolute top-3 left-3">
             <InventoryHealthBadge level={item.riskLevel} />
           </div>
-          <div className="absolute top-3 right-3 opacity-0 group-hover/inv-card:opacity-100 transition-opacity">
+          <div className="absolute top-3 right-3 opacity-0 group-hover/inv-card:opacity-100 transition-opacity flex items-center gap-2">
             <Button
               size="icon"
               variant="secondary"
@@ -36,6 +36,17 @@ export function InventoryCard({ item, onAction }: InventoryCardProps) {
               }}
             >
               <Edit className="size-4 text-foreground" />
+            </Button>
+            <Button
+              size="icon"
+              variant="destructive"
+              className="size-8 rounded-full shadow-md hover:bg-destructive"
+              onClick={(e) => {
+                e.stopPropagation()
+                onAction(item, "delete")
+              }}
+            >
+              <Trash2 className="size-4" />
             </Button>
           </div>
         </div>

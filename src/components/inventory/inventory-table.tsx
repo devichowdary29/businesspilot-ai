@@ -1,6 +1,6 @@
 "use client"
 
-import { MoreHorizontal, FileText, ShoppingCart, Mail, Eye, Edit } from "lucide-react"
+import { MoreHorizontal, FileText, ShoppingCart, Mail, Eye, Edit, Trash2 } from "lucide-react"
 import {
   Table,
   TableBody,
@@ -23,7 +23,7 @@ import type { InventoryItem } from "./types"
 
 interface InventoryTableProps {
   items: InventoryItem[]
-  onAction: (item: InventoryItem, action: "view" | "reorder" | "edit") => void
+  onAction: (item: InventoryItem, action: "view" | "reorder" | "edit" | "delete") => void
 }
 
 export function InventoryTable({ items, onAction }: InventoryTableProps) {
@@ -117,6 +117,14 @@ export function InventoryTable({ items, onAction }: InventoryTableProps) {
                     <DropdownMenuItem>
                       <FileText className="mr-2 size-4" />
                       Generate Forecast
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem 
+                      onClick={() => onAction(item, "delete")}
+                      className="text-destructive focus:bg-destructive/10 focus:text-destructive"
+                    >
+                      <Trash2 className="mr-2 size-4" />
+                      Stop Tracking
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>

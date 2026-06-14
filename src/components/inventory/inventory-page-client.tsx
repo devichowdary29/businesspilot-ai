@@ -9,6 +9,7 @@ import { InventoryTable } from "@/components/inventory/inventory-table"
 import { InventoryCard } from "@/components/inventory/inventory-card"
 import { RestockRecommendationDialog } from "@/components/inventory/restock-recommendation-dialog"
 import { InventoryFormDialog } from "@/components/inventory/inventory-form-dialog"
+import { InventoryDeleteDialog } from "@/components/inventory/inventory-delete-dialog"
 import { inventoryStats } from "@/components/inventory/data"
 import type { InventoryItem, InventoryFilters, ViewMode } from "@/components/inventory/types"
 import type { AvailableProductForInventory } from "@/actions/inventory/types"
@@ -34,6 +35,7 @@ export function InventoryPageClient({ initialItems, availableProducts }: Invento
   const [dialogOpen, setDialogOpen] = React.useState(false)
   const [isAddInventoryOpen, setIsAddInventoryOpen] = React.useState(false)
   const [inventoryToEdit, setInventoryToEdit] = React.useState<InventoryItem | null>(null)
+  const [inventoryToDelete, setInventoryToDelete] = React.useState<InventoryItem | null>(null)
 
   React.useEffect(() => {
     setItems(initialItems)
@@ -54,13 +56,15 @@ export function InventoryPageClient({ initialItems, availableProducts }: Invento
     })
   }, [items, filters])
 
-  const handleAction = (item: InventoryItem, action: "view" | "reorder" | "edit") => {
+  const handleAction = (item: InventoryItem, action: "view" | "reorder" | "edit" | "delete") => {
     setSelectedItem(item)
     if (action === "reorder") {
       setDialogOpen(true)
     } else if (action === "edit") {
       setInventoryToEdit(item)
       setIsAddInventoryOpen(true)
+    } else if (action === "delete") {
+      setInventoryToDelete(item)
     }
   }
 
@@ -152,6 +156,16 @@ export function InventoryPageClient({ initialItems, availableProducts }: Invento
           dailySalesAvg: inventoryToEdit.averageDailySales,
         } : undefined}
       />
+
+      {inventoryToDelete && (
+        <InventoryDeleteDialog
+          inventoryId={inventoryToDelete.id}
+          productName={inventoryToDelete.productName}
+          currentQuantity={inventoryToDelete.currentStock}
+          open={!!inventoryToDelete}
+          onOpenChange={(open) => !open && setInventoryToDelete(null)}
+        />
+      )}
     </div>
   )
 }
