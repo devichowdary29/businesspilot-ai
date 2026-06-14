@@ -7,9 +7,10 @@ import type { Customer } from "./types"
 interface CustomerCardProps {
   customer: Customer
   onViewProfile: (customer: Customer) => void
+  onEdit?: (customer: Customer) => void
 }
 
-export function CustomerCard({ customer, onViewProfile }: CustomerCardProps) {
+export function CustomerCard({ customer, onViewProfile, onEdit }: CustomerCardProps) {
   // Simple health score representation (inverse of risk score)
   const healthScore = 100 - customer.riskScore
   

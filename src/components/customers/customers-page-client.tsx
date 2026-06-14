@@ -30,7 +30,18 @@ export function CustomersPageClient({ initialCustomers }: CustomersPageClientPro
   })
   
   const [selectedCustomer, setSelectedCustomer] = React.useState<Customer | null>(null)
+  const [customerToEdit, setCustomerToEdit] = React.useState<Customer | null>(null)
   const [isAddCustomerOpen, setIsAddCustomerOpen] = React.useState(false)
+
+  const handleEdit = (customer: Customer) => {
+    setCustomerToEdit(customer)
+    setIsAddCustomerOpen(true)
+  }
+
+  const handleOpenAddCustomer = () => {
+    setCustomerToEdit(null)
+    setIsAddCustomerOpen(true)
+  }
 
   const filteredCustomers = React.useMemo(() => {
     return customers.filter((customer) => {
@@ -51,7 +62,7 @@ export function CustomersPageClient({ initialCustomers }: CustomersPageClientPro
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between">
           <h2 className="text-2xl font-bold tracking-tight">Customers</h2>
-          <Button onClick={() => setIsAddCustomerOpen(true)}>
+          <Button onClick={handleOpenAddCustomer}>
             <Plus className="mr-2 size-4" />
             Add Customer
           </Button>
@@ -83,6 +94,7 @@ export function CustomersPageClient({ initialCustomers }: CustomersPageClientPro
         <CustomerTable
           customers={filteredCustomers}
           onViewProfile={setSelectedCustomer}
+          onEdit={handleEdit}
         />
       ) : (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -91,6 +103,7 @@ export function CustomersPageClient({ initialCustomers }: CustomersPageClientPro
               key={customer.id}
               customer={customer}
               onViewProfile={setSelectedCustomer}
+              onEdit={handleEdit}
             />
           ))}
         </div>
@@ -104,7 +117,21 @@ export function CustomersPageClient({ initialCustomers }: CustomersPageClientPro
 
       <CustomerFormDialog
         open={isAddCustomerOpen}
-        onOpenChange={setIsAddCustomerOpen}
+        onOpenChange={(open) => {
+          setIsAddCustomerOpen(open)
+          if (!open) setCustomerToEdit(null)
+        }}
+        initialData={
+          customerToEdit
+            ? {
+                id: customerToEdit.id,
+                name: customerToEdit.name,
+                email: customerToEdit.email,
+                phone: customerToEdit.phone,
+                segment: customerToEdit.segment,
+              }
+            : undefined
+        }
       />
     </div>
   )

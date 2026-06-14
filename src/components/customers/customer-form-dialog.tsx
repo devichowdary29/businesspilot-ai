@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dialog"
 import { useRouter } from "next/navigation"
 import { createCustomer } from "@/actions/customers/create-customer"
+import { updateCustomer } from "@/actions/customers/update-customer"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -29,6 +30,7 @@ import { CustomerSegment as PrismaCustomerSegment } from "@prisma/client"
 interface CustomerFormDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
+  initialData?: CustomerFormData & { id: string }
 }
 
 const segments: CustomerSegment[] = ["New", "Loyal", "VIP", "At Risk"]
@@ -36,6 +38,7 @@ const segments: CustomerSegment[] = ["New", "Loyal", "VIP", "At Risk"]
 export function CustomerFormDialog({
   open,
   onOpenChange,
+  initialData,
 }: CustomerFormDialogProps) {
   const router = useRouter()
   const [isPending, startTransition] = React.useTransition()
@@ -44,10 +47,19 @@ export function CustomerFormDialog({
 
   React.useEffect(() => {
     if (open) {
-      setForm(initialCustomerFormData)
+      if (initialData) {
+        setForm({
+          name: initialData.name,
+          email: initialData.email,
+          phone: initialData.phone,
+          segment: initialData.segment,
+        })
+      } else {
+        setForm(initialCustomerFormData)
+      }
       setErrors({})
     }
-  }, [open])
+  }, [open, initialData])
 
   function validate(): boolean {
     const newErrors: Partial<Record<keyof CustomerFormData, string>> = {}
@@ -74,12 +86,16 @@ export function CustomerFormDialog({
         form.segment === "VIP" ? PrismaCustomerSegment.VIP :
         PrismaCustomerSegment.AT_RISK;
 
-      const response = await createCustomer({
+      const dataPayload = {
         name: form.name,
         email: form.email || null,
         phone: form.phone || null,
         segment: prismaSegment,
-      })
+      }
+
+      const response = initialData
+        ? await updateCustomer({ id: initialData.id, ...dataPayload })
+        : await createCustomer(dataPayload)
 
       if (response.isSuccess) {
         setForm(initialCustomerFormData)
@@ -100,13 +116,17 @@ export function CustomerFormDialog({
     onOpenChange(value)
   }
 
+  const isEdit = !!initialData
+
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Add New Customer</DialogTitle>
+          <DialogTitle>{isEdit ? "Edit Customer" : "Add New Customer"}</DialogTitle>
           <DialogDescription>
-            Enter the details to register a new customer in your organization.
+            {isEdit
+              ? "Modify the details of the selected customer."
+              : "Enter the details to register a new customer in your organization."}
           </DialogDescription>
         </DialogHeader>
 
@@ -196,7 +216,7 @@ export function CustomerFormDialog({
             </Button>
             <Button type="submit" disabled={isPending}>
               {isPending && <Loader2 className="mr-2 size-4 animate-spin" />}
-              {isPending ? "Creating..." : "Create Customer"}
+              {isPending ? (isEdit ? "Updating..." : "Creating...") : (isEdit ? "Update Customer" : "Create Customer")}
             </Button>
           </DialogFooter>
         </form>
