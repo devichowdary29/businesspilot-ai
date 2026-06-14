@@ -1,73 +1,59 @@
-"use client"
+import { getConversations } from "@/actions/ai/get-conversations"
+import { AiPageClient } from "@/components/ai/ai-page-client"
+import { MessageSquare, LayoutDashboard, Search, Package, Users } from "lucide-react"
+import type { ConversationHistoryItem, ChatMessageData, MessageRole, ConversationCategory } from "@/components/ai/types"
 
-import * as React from "react"
-import { Menu } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { ConversationSidebar } from "@/components/ai/conversation-sidebar"
-import { AiChat } from "@/components/ai/ai-chat"
-import { ExportReportDialog } from "@/components/ai/export-report-dialog"
-import { historyItems } from "@/components/ai/data"
+export const dynamic = "force-dynamic"
+export const runtime = "nodejs"
 
-export default function AiAdvisorPage() {
-  const [activeId, setActiveId] = React.useState<string | undefined>(undefined)
-  const [exportOpen, setExportOpen] = React.useState(false)
-  const [isMobileOpen, setIsMobileOpen] = React.useState(false)
+// Optional helper to map category strings to icons
+const getCategoryIcon = (title: string) => {
+  const lowerTitle = title.toLowerCase()
+  if (lowerTitle.includes("revenue") || lowerTitle.includes("sales")) return LayoutDashboard
+  if (lowerTitle.includes("inventory") || lowerTitle.includes("stock")) return Package
+  if (lowerTitle.includes("customer")) return Users
+  if (lowerTitle.includes("report")) return Search
+  return MessageSquare
+}
 
-  const handleSelectConversation = (id: string) => {
-    setActiveId(id)
-    setIsMobileOpen(false)
-  }
+const getCategory = (title: string): ConversationCategory => {
+  const lowerTitle = title.toLowerCase()
+  if (lowerTitle.includes("revenue") || lowerTitle.includes("sales")) return "Revenue"
+  if (lowerTitle.includes("inventory") || lowerTitle.includes("stock")) return "Inventory"
+  if (lowerTitle.includes("customer")) return "Customers"
+  if (lowerTitle.includes("report")) return "Report"
+  return "Products"
+}
 
-  const handleNewConversation = () => {
-    setActiveId(undefined)
-    setIsMobileOpen(false)
-  }
+export default async function AiAdvisorPage() {
+  const response = await getConversations()
+  
+  let initialConversations: ConversationHistoryItem[] = []
+  let messagesMap: Record<string, ChatMessageData[]> = {}
 
-  const handleExportReport = () => {
-    setExportOpen(true)
+  if (response.isSuccess) {
+    initialConversations = response.data.map((conv) => ({
+      id: conv.id,
+      title: conv.title,
+      date: conv.updatedAt.toISOString(), // format if needed
+      category: getCategory(conv.title),
+      icon: getCategoryIcon(conv.title),
+    }))
+
+    response.data.forEach((conv) => {
+      messagesMap[conv.id] = conv.messages.map((msg) => ({
+        id: msg.id,
+        role: (msg.role === "USER" ? "user" : "ai") as MessageRole,
+        content: msg.content,
+        timestamp: msg.createdAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      }))
+    })
   }
 
   return (
-    <div className="flex h-[calc(100vh-8rem)] flex-col md:flex-row -mx-4 md:-mx-8 -mb-4 overflow-hidden rounded-xl border bg-background shadow-sm ring-1 ring-border/50">
-      
-      {/* Mobile Sidebar Trigger */}
-      <div className="flex items-center gap-2 border-b bg-muted/10 p-3 md:hidden">
-        <Sheet open={isMobileOpen} onOpenChange={setIsMobileOpen}>
-          <SheetTrigger asChild>
-            <Button variant="ghost" size="icon-sm">
-              <Menu className="size-4" />
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="left" className="w-72 p-0">
-            <ConversationSidebar 
-              history={historyItems} 
-              activeId={activeId}
-              onSelect={handleSelectConversation}
-              onNew={handleNewConversation}
-            />
-          </SheetContent>
-        </Sheet>
-        <span className="font-semibold text-sm">AI Business Advisor</span>
-      </div>
-
-      {/* Desktop Sidebar */}
-      <div className="hidden w-72 shrink-0 border-r md:block">
-        <ConversationSidebar 
-          history={historyItems} 
-          activeId={activeId}
-          onSelect={handleSelectConversation}
-          onNew={handleNewConversation}
-        />
-      </div>
-
-      {/* Main Chat Area */}
-      <div className="flex-1 bg-gradient-to-br from-background via-background to-primary/[0.01] overflow-hidden">
-        <AiChat onExportReport={handleExportReport} />
-      </div>
-
-      {/* Dialogs */}
-      <ExportReportDialog open={exportOpen} onOpenChange={setExportOpen} />
-    </div>
+    <AiPageClient 
+      initialConversations={initialConversations}
+      messagesMap={messagesMap}
+    />
   )
 }

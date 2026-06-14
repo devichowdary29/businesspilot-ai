@@ -11,10 +11,12 @@ import type { ChatMessageData } from "./types"
 
 interface AiChatProps {
   onExportReport: () => void
+  initialMessages?: ChatMessageData[]
+  conversationId?: string
 }
 
-export function AiChat({ onExportReport }: AiChatProps) {
-  const [messages, setMessages] = React.useState<ChatMessageData[]>([])
+export function AiChat({ onExportReport, initialMessages = [], conversationId }: AiChatProps) {
+  const [messages, setMessages] = React.useState<ChatMessageData[]>(initialMessages)
   const [isThinking, setIsThinking] = React.useState(false)
   const messagesEndRef = React.useRef<HTMLDivElement>(null)
 
@@ -25,6 +27,10 @@ export function AiChat({ onExportReport }: AiChatProps) {
   React.useEffect(() => {
     scrollToBottom()
   }, [messages, isThinking])
+
+  React.useEffect(() => {
+    setMessages(initialMessages)
+  }, [conversationId, initialMessages])
 
   const handleSend = (text: string) => {
     const newUserMsg: ChatMessageData = {
