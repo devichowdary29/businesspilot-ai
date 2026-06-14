@@ -52,3 +52,13 @@ export interface GenerateResponseOutput {
     totalTokens: number;
   };
 }
+
+export interface GenerateBusinessReportInput {
+  businessContext: BusinessContext;
+}
+
+export interface GenerateBusinessReportOutput {
+  content: string;
+  provider: string;
+  model: string;
+}
