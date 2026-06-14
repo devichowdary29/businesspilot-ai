@@ -4,13 +4,13 @@ import { RevenueChart } from "@/components/dashboard/revenue-chart"
 import { QuickActions } from "@/components/dashboard/quick-actions"
 import { RecentOrdersTable } from "@/components/dashboard/recent-orders-table"
 import {
-  recentOrders,
   aiInsights,
   aiActions,
   businessHealthScore,
 } from "@/components/dashboard/data"
 import { getDashboardOverview } from "@/actions/dashboard/get-dashboard-overview"
 import { getDashboardRevenue } from "@/actions/dashboard/get-dashboard-revenue"
+import { getDashboardRecentOrders } from "@/actions/dashboard/get-dashboard-recent-orders"
 import { IndianRupee, ShoppingCart, Users, Package } from "lucide-react"
 
 export const dynamic = "force-dynamic"
@@ -18,6 +18,7 @@ export const dynamic = "force-dynamic"
 export default async function DashboardPage() {
   const overview = await getDashboardOverview()
   const revenue = await getDashboardRevenue()
+  const recentOrdersState = await getDashboardRecentOrders()
 
   const liveKpiCards = [
     {
@@ -79,7 +80,7 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      <RecentOrdersTable orders={recentOrders} />
+      <RecentOrdersTable orders={recentOrdersState.data || []} />
     </div>
   )
 }

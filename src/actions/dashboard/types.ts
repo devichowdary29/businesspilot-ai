@@ -17,3 +17,16 @@ export interface DashboardRevenueState {
     revenue: number;
   }[];
 }
+
+export interface DashboardRecentOrdersState {
+  isSuccess: boolean;
+  message: string;
+  data?: {
+    id: string;
+    customer: string;
+    product: string;
+    amount: string;
+    status: "Paid" | "Pending" | "Delivered";
+    date: string;
+  }[];
+}
