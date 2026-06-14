@@ -20,3 +20,12 @@ export interface CreateMessageInput {
 }
 
 export type MessageActionState = ActionState<AIMessage>;
+
+export interface ExecutiveReportData {
+  report: string;
+  provider: string;
+  model: string;
+  generatedAt: string;
+}
+
+export type ExecutiveReportActionState = ActionState<ExecutiveReportData>;
