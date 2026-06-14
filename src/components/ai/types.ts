@@ -15,7 +15,6 @@ export interface ConversationHistoryItem {
   title: string
   date: string
   category: ConversationCategory
-  icon: LucideIcon
 }
 
 export interface SuggestedPrompt {

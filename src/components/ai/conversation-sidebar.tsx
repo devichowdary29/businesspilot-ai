@@ -1,9 +1,20 @@
 "use client"
 
 import * as React from "react"
-import { Plus, MessageSquare } from "lucide-react"
+import { Plus, MessageSquare, LayoutDashboard, Search, Package, Users } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import type { ConversationHistoryItem } from "./types"
+import type { ConversationHistoryItem, ConversationCategory } from "./types"
+
+const getCategoryIcon = (category: ConversationCategory) => {
+  switch (category) {
+    case "Revenue": return LayoutDashboard;
+    case "Inventory": return Package;
+    case "Customers": return Users;
+    case "Report": return Search;
+    case "Products": return Package;
+    default: return MessageSquare;
+  }
+}
 
 interface ConversationSidebarProps {
   history: ConversationHistoryItem[]
@@ -37,7 +48,10 @@ export function ConversationSidebar({ history, activeId, onSelect, onNew }: Conv
                   : "text-muted-foreground hover:bg-muted hover:text-foreground"
               }`}
             >
-              <item.icon className="size-4 shrink-0" />
+              {(() => {
+                const Icon = getCategoryIcon(item.category)
+                return <Icon className="size-4 shrink-0" />
+              })()}
               <div className="flex-1 truncate">
                 <p className="truncate">{item.title}</p>
               </div>

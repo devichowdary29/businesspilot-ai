@@ -7,35 +7,30 @@ export const historyItems: ConversationHistoryItem[] = [
     title: "Revenue Growth Analysis",
     date: "Today",
     category: "Revenue",
-    icon: TrendingUp,
   },
   {
     id: "conv-002",
     title: "Inventory Risk Report",
     date: "Yesterday",
     category: "Inventory",
-    icon: AlertTriangle,
   },
   {
     id: "conv-003",
     title: "Customer Churn Prediction",
-    date: "10 Jun",
+    date: "Mon, 10:30 AM",
     category: "Customers",
-    icon: Users,
   },
   {
     id: "conv-004",
     title: "Trending Products",
-    date: "08 Jun",
+    date: "Last Week",
     category: "Products",
-    icon: Package,
   },
   {
     id: "conv-005",
     title: "Monthly Business Report",
     date: "01 Jun",
     category: "Report",
-    icon: FileBarChart,
   },
 ]
 

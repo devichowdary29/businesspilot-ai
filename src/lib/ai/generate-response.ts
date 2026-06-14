@@ -1,45 +1,99 @@
 import { GenerateResponseInput, GenerateResponseOutput } from "./types";
 import { BUSINESS_PILOT_SYSTEM_PROMPT } from "./system-prompt";
+import Groq from "groq-sdk";
+
+// Initialize the Groq SDK globally on the server.
+// Will throw an error if GROQ_API_KEY is not set, but we catch it gracefully inside the function if needed,
+// or let Next.js catch it on boot if we require it strictly.
+const groq = new Groq({
+  apiKey: process.env.GROQ_API_KEY || "missing_key",
+});
 
 /**
  * generateAIResponse serves as the provider-agnostic interface for BusinessPilot AI.
- * Currently, it implements a mock engine, allowing the broader architecture to be fully
- * built, tested, and typed before plugging in a live LLM (like OpenAI or Anthropic).
+ * It uses Groq internally to provide fast, high-quality analytical responses.
  */
 export async function generateAIResponse(
   input: GenerateResponseInput
 ): Promise<GenerateResponseOutput> {
   const { conversationHistory, businessContext, latestQuestion } = input;
   
-  const query = latestQuestion.toLowerCase();
-  let content = "";
+  try {
+    // 1. Map existing history into Groq's ChatCompletion format
+    const messages: Groq.Chat.Completions.ChatCompletionMessageParam[] = [];
 
-  // Mock Engine Routing Logic
-  if (query.includes("low on stock") || query.includes("inventory")) {
-    content = `Based on your inventory data, I have identified products approaching their minimum stock threshold.
+    // Inject System Prompt
+    messages.push({
+      role: "system",
+      content: BUSINESS_PILOT_SYSTEM_PROMPT,
+    });
 
-I recommend reviewing your current inventory levels and preparing restock orders for items with declining availability.`;
-  } else if (query.includes("how is my business doing") || query.includes("performance") || query.includes("sales")) {
-    content = `Your business performance appears stable based on the available operational data.
+    // Inject Real Business Context as a hidden system injection or user context
+    // We'll append it to the system message to enforce context grounding
+    if (businessContext) {
+      messages.push({
+        role: "system",
+        content: `Current Business Context Data:\n\n${JSON.stringify(businessContext, null, 2)}`,
+      });
+    }
 
-I recommend reviewing revenue trends, customer purchasing patterns, and inventory turnover for deeper insights.`;
-  } else if (query.includes("report")) {
-    content = `I've analyzed your latest data and generated your weekly business report highlighting key performance metrics across inventory and sales.`;
-  } else {
-    content = `I understand your question and will analyze your business data to provide recommendations once complete intelligence integration is available.`;
+    // Append Conversation History
+    for (const msg of conversationHistory) {
+      if (msg.role === "USER") {
+        messages.push({ role: "user", content: msg.content });
+      } else if (msg.role === "ASSISTANT") {
+        messages.push({ role: "assistant", content: msg.content });
+      }
+    }
+
+    // Append Latest Question (already included if it was pushed to DB and fetched in history, 
+    // but the instruction says 'conversationHistory + latestQuestion'. Since the orchestrator 
+    // already saves the USER message to the DB and loads it into history, the latest question 
+    // is technically already the last item in conversationHistory. But we'll ensure we don't duplicate it. 
+    // If the last message in history is the latestQuestion, we're good. If not, we append it.
+    const lastHistoryMessage = conversationHistory[conversationHistory.length - 1];
+    if (!lastHistoryMessage || lastHistoryMessage.content !== latestQuestion) {
+       messages.push({
+         role: "user",
+         content: latestQuestion,
+       });
+    }
+
+    // 2. Call Groq SDK
+    const model = "llama-3.3-70b-versatile";
+    const completion = await groq.chat.completions.create({
+      messages,
+      model,
+      temperature: 0.3,
+      max_tokens: 1500,
+    });
+
+    const aiContent = completion.choices[0]?.message?.content || "I apologize, but I received an empty response. Please try again.";
+
+    // 3. Return provider-agnostic response
+    return {
+      content: aiContent,
+      provider: "groq",
+      model: model,
+      usage: {
+        promptTokens: completion.usage?.prompt_tokens || 0,
+        completionTokens: completion.usage?.completion_tokens || 0,
+        totalTokens: completion.usage?.total_tokens || 0,
+      },
+    };
+  } catch (error: any) {
+    console.error("[GROQ_API_ERROR]", error);
+    
+    // Return a safe fallback as specified
+    return {
+      content: "I apologize, but I am temporarily unable to analyze your business data. Please try again in a few moments.",
+      provider: "groq",
+      model: "fallback",
+      usage: {
+        promptTokens: 0,
+        completionTokens: 0,
+        totalTokens: 0,
+      },
+    };
   }
-
-  // Simulate network latency for a realistic UI experience
-  await new Promise((resolve) => setTimeout(resolve, 1500));
-
-  return {
-    content,
-    provider: "mock",
-    model: "business-pilot-mock-v1",
-    usage: {
-      promptTokens: 0,
-      completionTokens: 0,
-      totalTokens: 0,
-    },
-  };
 }
