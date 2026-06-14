@@ -1,108 +1,69 @@
-"use client"
+import { InventoryPageClient } from "@/components/inventory/inventory-page-client"
+import type { InventoryItem } from "@/components/inventory/types"
 
-import * as React from "react"
-import { InventoryStats } from "@/components/inventory/inventory-stats"
-import { InventoryForecastPanel } from "@/components/inventory/inventory-forecast-panel"
-import { SupplierInfoCard } from "@/components/inventory/supplier-info-card"
-import { InventoryToolbar } from "@/components/inventory/inventory-toolbar"
-import { InventoryTable } from "@/components/inventory/inventory-table"
-import { InventoryCard } from "@/components/inventory/inventory-card"
-import { RestockRecommendationDialog } from "@/components/inventory/restock-recommendation-dialog"
-import { inventoryItems, inventoryStats } from "@/components/inventory/data"
-import type { InventoryItem, InventoryFilters, ViewMode } from "@/components/inventory/types"
+export const dynamic = "force-dynamic"
+export const runtime = "nodejs"
 
-export default function InventoryPage() {
-  const [items] = React.useState<InventoryItem[]>(inventoryItems)
-  const [viewMode, setViewMode] = React.useState<ViewMode>("table")
-  const [filters, setFilters] = React.useState<InventoryFilters>({
-    search: "",
-    category: "All",
-    riskLevel: "All",
-  })
+export default async function InventoryPage() {
+  const { getInventory } = await import("@/actions/inventory/get-inventory")
+  const response = await getInventory()
   
-  const [selectedItem, setSelectedItem] = React.useState<InventoryItem | null>(null)
-  const [dialogOpen, setDialogOpen] = React.useState(false)
-
-  const filteredItems = React.useMemo(() => {
-    return items.filter((item) => {
-      const searchLower = filters.search.toLowerCase()
-      const matchesSearch = 
-        item.productName.toLowerCase().includes(searchLower) ||
-        item.sku.toLowerCase().includes(searchLower) ||
-        item.supplierName.toLowerCase().includes(searchLower)
+  let mappedItems: InventoryItem[] = []
+  
+  if (response.isSuccess) {
+    mappedItems = response.data.map((item) => {
+      // Calculate risk level based on stock ratio
+      const ratio = item.quantity / item.minimumStock
+      let riskLevel: InventoryItem["riskLevel"] = "Healthy"
       
-      const matchesCategory = filters.category === "All" || item.category === filters.category
-      const matchesRisk = filters.riskLevel === "All" || item.riskLevel === filters.riskLevel
+      if (item.quantity === 0 || ratio <= 0.5) {
+        riskLevel = "Critical"
+      } else if (ratio <= 1.0) {
+        riskLevel = "Low"
+      } else if (ratio <= 1.5) {
+        riskLevel = "Watch"
+      }
 
-      return matchesSearch && matchesCategory && matchesRisk
+      // Simple AI recommendation simulation
+      let aiRecommendation = "Stock levels are optimal."
+      if (riskLevel === "Critical") {
+        aiRecommendation = `Immediate restock required. Average daily sales: ${item.dailySalesAvg}.`
+      } else if (riskLevel === "Low") {
+        aiRecommendation = `Plan to restock within ${Math.max(1, Math.floor(item.quantity / (item.dailySalesAvg || 1)))} days.`
+      }
+
+      const daysUntilStockout = item.dailySalesAvg && item.dailySalesAvg > 0
+        ? Math.floor(item.quantity / item.dailySalesAvg)
+        : 999;
+
+      // Ensure proper formatting of dates
+      const lastRestockDateObj = new Date(item.updatedAt)
+      const formattedRestockDate = `${lastRestockDateObj.toLocaleString('default', { month: 'short' })} ${lastRestockDateObj.getDate()}, ${lastRestockDateObj.getFullYear()}`
+
+      return {
+        id: item.id,
+        productName: item.product.name,
+        productImage: `https://api.dicebear.com/7.x/shapes/svg?seed=${encodeURIComponent(item.product.name)}`,
+        sku: item.product.sku,
+        category: item.product.category as any, // Cast to UI type if they mismatch, though schema string is fine
+        
+        currentStock: item.quantity,
+        minimumStock: item.minimumStock,
+        averageDailySales: item.dailySalesAvg || 0,
+        daysUntilStockout: daysUntilStockout,
+
+        supplierName: item.supplier || "Unknown Supplier",
+        supplierLeadTime: item.leadTimeDays || 0,
+        lastRestockDate: formattedRestockDate,
+
+        inventoryValue: item.quantity * Number(item.product.cost),
+        monthlyDemandGrowth: 0, // Stub
+
+        riskLevel: riskLevel,
+        aiRecommendation: aiRecommendation,
+      }
     })
-  }, [items, filters])
-
-  const handleAction = (item: InventoryItem, action: "view" | "reorder") => {
-    setSelectedItem(item)
-    if (action === "reorder") {
-      setDialogOpen(true)
-    }
   }
 
-  return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-2">
-        <h2 className="text-2xl font-bold tracking-tight">Inventory Intelligence Center</h2>
-        <p className="text-muted-foreground">
-          AI-powered supply chain management and automated forecasting.
-        </p>
-      </div>
-
-      <InventoryStats stats={inventoryStats} />
-      
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2">
-          <InventoryForecastPanel />
-        </div>
-        <div>
-          <SupplierInfoCard />
-        </div>
-      </div>
-
-      <InventoryToolbar
-        filters={filters}
-        onFiltersChange={setFilters}
-        viewMode={viewMode}
-        onViewModeChange={setViewMode}
-        totalCount={items.length}
-        filteredCount={filteredItems.length}
-      />
-
-      {filteredItems.length === 0 ? (
-        <div className="flex min-h-[400px] flex-col items-center justify-center rounded-xl border border-dashed text-center">
-          <h3 className="text-lg font-semibold">No inventory items found.</h3>
-          <p className="text-sm text-muted-foreground">
-            Try changing your filters or search terms.
-          </p>
-        </div>
-      ) : viewMode === "table" ? (
-        <InventoryTable
-          items={filteredItems}
-          onAction={handleAction}
-        />
-      ) : (
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {filteredItems.map((item) => (
-            <InventoryCard
-              key={item.id}
-              item={item}
-              onAction={handleAction}
-            />
-          ))}
-        </div>
-      )}
-
-      <RestockRecommendationDialog
-        item={selectedItem}
-        open={dialogOpen}
-        onOpenChange={setDialogOpen}
-      />
-    </div>
-  )
+  return <InventoryPageClient initialItems={mappedItems} />
 }
