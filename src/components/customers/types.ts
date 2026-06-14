@@ -39,3 +39,17 @@ export interface CustomerStatsData {
   changeType: "positive" | "negative" | "neutral"
   icon: LucideIcon
 }
+
+export interface CustomerFormData {
+  name: string
+  email: string
+  phone: string
+  segment: CustomerSegment
+}
+
+export const initialCustomerFormData: CustomerFormData = {
+  name: "",
+  email: "",
+  phone: "",
+  segment: "New",
+}

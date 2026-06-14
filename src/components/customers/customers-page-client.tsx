@@ -6,7 +6,10 @@ import { CustomerToolbar } from "@/components/customers/customer-toolbar"
 import { CustomerTable } from "@/components/customers/customer-table"
 import { CustomerCard } from "@/components/customers/customer-card"
 import { CustomerProfileDialog } from "@/components/customers/customer-profile-dialog"
+import { CustomerFormDialog } from "@/components/customers/customer-form-dialog"
 import { customerStats } from "@/components/customers/data"
+import { Plus } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import type { Customer, CustomerFilters, ViewMode } from "@/components/customers/types"
 
 interface CustomersPageClientProps {
@@ -27,6 +30,7 @@ export function CustomersPageClient({ initialCustomers }: CustomersPageClientPro
   })
   
   const [selectedCustomer, setSelectedCustomer] = React.useState<Customer | null>(null)
+  const [isAddCustomerOpen, setIsAddCustomerOpen] = React.useState(false)
 
   const filteredCustomers = React.useMemo(() => {
     return customers.filter((customer) => {
@@ -45,7 +49,13 @@ export function CustomersPageClient({ initialCustomers }: CustomersPageClientPro
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-2">
-        <h2 className="text-2xl font-bold tracking-tight">Customers</h2>
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-bold tracking-tight">Customers</h2>
+          <Button onClick={() => setIsAddCustomerOpen(true)}>
+            <Plus className="mr-2 size-4" />
+            Add Customer
+          </Button>
+        </div>
         <p className="text-muted-foreground">
           Manage your customer relationships and view AI-powered intelligence.
         </p>
@@ -90,6 +100,11 @@ export function CustomersPageClient({ initialCustomers }: CustomersPageClientPro
         customer={selectedCustomer}
         open={!!selectedCustomer}
         onOpenChange={(open) => !open && setSelectedCustomer(null)}
+      />
+
+      <CustomerFormDialog
+        open={isAddCustomerOpen}
+        onOpenChange={setIsAddCustomerOpen}
       />
     </div>
   )
